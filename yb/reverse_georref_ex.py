@@ -72,12 +72,15 @@ def getReverseGeorref(lat, long):
             return None
     
         #name = parsed_json.get('name')
+        address=parsed_json.get(address)
+        if address is None:
+            address={}
         display_name = parsed_json.get('display_name')
-        municipality = parsed_json['address'].get('municipality')
-        town = parsed_json['address'].get('town')
-        county = parsed_json['address'].get('county')
-        country = parsed_json['address'].get('country')
-        country_code = parsed_json['address'].get('country_code')
+        municipality = address.get('municipality')
+        town = address.get('town')
+        county = address.get('county')
+        country = address.get('country')
+        country_code = address.get('country_code')
     
         # openstreetmap not always has the same administrative levels available
         # on town/municipality level. It is needed to find which is one is available
@@ -85,10 +88,12 @@ def getReverseGeorref(lat, long):
     
         if municipality == None and town != None:
             municipality = town
-    
-        prev = display_name.split(municipality)
-        local = prev[0]
-        if (len(local) == 0):
+        if municipality is not None:
+          prev = display_name.split(municipality)
+          local = prev[0]
+        else:
+          local=''
+        if (len(local) == 0 and municipality is not None):
             local = municipality
     
         local = local.rstrip()
@@ -135,7 +140,7 @@ with open(inpfilename, 'rU') as csvfile:
 #%%
 inpdata[0].extend(["locality","municipality","stateProvince","country","country_code"])
 
-for i in range(1,len(inpdata)-1):
+for i in range(1,len(inpdata)):
     c_row=inpdata[i]
     try:
       lat=float(c_row[1].replace(',','.').strip())
@@ -155,6 +160,8 @@ for i in range(1,len(inpdata)-1):
 
 #%%
 storecache()
+print()
+print('Done. %d lines processed, %d queries, %d in cache'%(len(inpdata)-1,countresolved,len(cache)))
 with open(outfilename, 'w', newline='') as f:
     mywriter = csv.writer(f, dialect)
     mywriter.writerows(inpdata)
