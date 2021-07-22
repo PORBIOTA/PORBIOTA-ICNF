@@ -5,6 +5,13 @@ Location Extractor.rar
 
 Creates a CSV with the results obtained by inputing WGS84 coordinates into the OpenStreetMaps API.
 
+
+****
+Species Extractor.rar
+
+Creates a CSV with the results obtained by cross referencing the species name in one CSV with those from GBIF API.
+Aditionally it creates an occurenceID for each occurence.
+
 *****
 Table Joiner.rar
 
