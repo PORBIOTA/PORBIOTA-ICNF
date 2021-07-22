@@ -69,15 +69,17 @@ public class SpeciesExtractor {
 		String kingdomOfSpecies = args[0];
 		ListIterator<OccurenceForSpecies> occurenceIterator = occurences.listIterator();		
 		HashMap<String, JSONObject[]> speciesJSONs = new HashMap<String, JSONObject[]>();
-		JSONObject[] obj = new JSONObject[2];
+		
 		JSONParser parser = null;
-
+		JSONObject[] obj;
 
 		int counter = 1;
 		while (occurenceIterator.hasNext()) {
 			System.out.println("Working on line " + counter);
 			counter++;
-
+			
+			obj = new JSONObject[2];
+			
 			OccurenceForSpecies occ = occurenceIterator.next();
 			occ.setOccurenceID(UUID.randomUUID().toString());
 			occ.setScientificName(	occ.getScientificName().replace(" sp.", ""));
@@ -104,30 +106,38 @@ public class SpeciesExtractor {
 					e.printStackTrace();
 				} 	
 
-				//If synonym get new name	
-				if ((!((String) obj[0].get("canonicalName")).equalsIgnoreCase((String) obj[0].get("species"))) && (((String) obj[0].get("rank")).equalsIgnoreCase("Species") || ((String) obj[0].get("rank")).equalsIgnoreCase("Subspecies"))) {
+				//If synonym get new name
+				if (((String) obj[0].get("rank")).equalsIgnoreCase("Species") || ((String) obj[0].get("rank")).equalsIgnoreCase("Subspecies")) {
 
-					s = "https://api.gbif.org/v1/species/match?verbose=true&kingdom="+URLEncoder.encode(kingdomOfSpecies, "UTF-8")+"&name=";
-					s += URLEncoder.encode(((String) obj[0].get("species")), "UTF-8");
-					url = new URL(s);
+					String canonicalSpeciesOnly = (String) obj[0].get("canonicalName");
 
-					// read from the URL
-					scan = new Scanner(url.openStream(),"utf-8");
-					str = new String();
-					while (scan.hasNext())
-						str += scan.nextLine();
-					scan.close();
+					if (canonicalSpeciesOnly.lastIndexOf(" ") != canonicalSpeciesOnly.indexOf(" ")) {
+						canonicalSpeciesOnly = canonicalSpeciesOnly.substring(0, canonicalSpeciesOnly.lastIndexOf(" "));
+					}
+	
+					if (!canonicalSpeciesOnly.equalsIgnoreCase((String) obj[0].get("species"))) {
 
-					// build a JSON object
-					parser = new JSONParser();		
-					try {
-						obj[1] = (JSONObject) parser.parse(str);
-					} catch (ParseException e) {
+						s = "https://api.gbif.org/v1/species/match?verbose=true&kingdom="+URLEncoder.encode(kingdomOfSpecies, "UTF-8")+"&name=";
+						s += URLEncoder.encode(((String) obj[0].get("species")), "UTF-8");
+						url = new URL(s);
 
-						e.printStackTrace();
-					} 	
+						// read from the URL
+						scan = new Scanner(url.openStream(),"utf-8");
+						str = new String();
+						while (scan.hasNext())
+							str += scan.nextLine();
+						scan.close();
+
+						// build a JSON object
+						parser = new JSONParser();		
+						try {
+							obj[1] = (JSONObject) parser.parse(str);
+						} catch (ParseException e) {
+
+							e.printStackTrace();
+						} 	
+					}
 				}
-
 				//0 will be original call, 1 will be the call for the synonym species
 				speciesJSONs.put(occ.getScientificName(),(JSONObject[]) obj.clone());
 
@@ -247,13 +257,13 @@ public class SpeciesExtractor {
 					speciesInfraEpithet = "";
 				}
 			}
-
+			
+			//Define scientific name
 			occ.setSpecificEpithet(speciesEpithet);
 			occ.setInfraspecificEpithet(speciesInfraEpithet);
 
 
 
-			//Define scientific name
 
 			//Fixes strange matching with non matching items by making sure Kingdom matches come up empty in all taxonomic fields
 			if (((String) speciesJSONs.get(occ.getScientificName())[0].get("rank")).equalsIgnoreCase("KINGDOM")) {
@@ -271,7 +281,7 @@ public class SpeciesExtractor {
 
 
 			} else {
-				
+
 				//Sets the various taxonomic fields
 				occ.setAcceptedNameUsage((String) currentJSON[apiCall].get("scientificName"));
 
