@@ -162,7 +162,7 @@ public class SpeciesExtractor {
 
 			//Store species authors
 			if(authorship.contains("(")){
-				occ.setNameAuthorship((String) authorship.subSequence(authorship.indexOf('(')+1, authorship.indexOf(')')));
+				occ.setNameAuthorship((String) authorship.subSequence(authorship.indexOf('('), authorship.indexOf(')')+1));
 				authorship = (String) authorship.subSequence(0, authorship.indexOf('('));
 			} else {
 
