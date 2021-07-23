@@ -13,6 +13,8 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -24,318 +26,147 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+/**
+ * 
+ * @author Tomé
+ *
+ * Main class that deals with calling the OpenStreetMaps API.
+ *
+ * @param args 0 - Input File, 1 - Output File
+ *
+ */
 
+public class LocationExtractor {
 
-public class SpeciesExtractor {
-
-	//Arg 0 - Kingdom
-	//Arg 1 - Input
-	//Arg 2 - Output
 	public static void main(String[] args) throws IOException {
 
 
-		//READER
-		String fileName = args[1];
+		//Reads the input file and binds the data to beans
+		String fileName = args[0];
 		Path myPath = Paths.get(fileName);
 
-		List<OccurenceForSpecies> occurences = null;
+		List<OccurenceForLocation> occurences = null;
 
 		try (BufferedReader br = Files.newBufferedReader(myPath,StandardCharsets.UTF_8)) {
 
-			HeaderColumnNameMappingStrategy<OccurenceForSpecies> strategy
+			HeaderColumnNameMappingStrategy<OccurenceForLocation> strategy
 			= new HeaderColumnNameMappingStrategy<>();
-			strategy.setType(OccurenceForSpecies.class);
+			strategy.setType(OccurenceForLocation.class);
 
-			CsvToBean<OccurenceForSpecies> csvToBean = new CsvToBeanBuilder<OccurenceForSpecies>(br)
+			CsvToBean<OccurenceForLocation> csvToBean = new CsvToBeanBuilder<OccurenceForLocation>(br)
 					.withMappingStrategy(strategy)
 					.withIgnoreLeadingWhiteSpace(true)
 					.build();
 
 			occurences = csvToBean.parse();
 
-		} catch (IOException e) {
+		} catch (IOException e) {			
 			System.out.println("There is no input file!");
+			System.exit(1);
+		}
+		catch (RuntimeException e) {
+			System.out.println("Either the .csv is not in UTF-8 or its delimiters are not commas(,)\n\n");			
+			e.printStackTrace();
 			System.exit(1);
 		}
 
 
 		//WORKING THE DATA
 
-		String kingdomOfSpecies = args[0];
-		ListIterator<OccurenceForSpecies> occurenceIterator = occurences.listIterator();		
-		HashMap<String, JSONObject[]> speciesJSONs = new HashMap<String, JSONObject[]>();
+		//Creates an iterator to go through all occurences
+		ListIterator<OccurenceForLocation> occurenceIterator = occurences.listIterator();	
 		
+		//Creates a hashmap that stores coordinates already fetched
+		HashMap<String, JSONObject> occurenceLocations = new HashMap<String, JSONObject>();
+		
+		JSONObject obj = null;
 		JSONParser parser = null;
-		JSONObject[] obj;
 
 		int counter = 1;
+
 		while (occurenceIterator.hasNext()) {
+
+			//Shows progress
 			System.out.println("Working on line " + counter);
 			counter++;
+
+			OccurenceForLocation occ = occurenceIterator.next();
+
+			///Gets the latitude and longitude
+			String lat = occ.getLat();
+			String lon = occ.getLong();
+			String latlon = lat + lon;
+
 			
-			obj = new JSONObject[2];
-			
-			OccurenceForSpecies occ = occurenceIterator.next();
-			occ.setOccurenceID(UUID.randomUUID().toString());
-			occ.setScientificName(	occ.getScientificName().replace(" sp.", ""));
+			//Tries to use the coordinates, but catches errors if they do not exist or if OpenStreetMaps does not map them.
+			try {
 
-			if (!speciesJSONs.containsKey(occ.getScientificName())) {	
-
-				String s = "https://api.gbif.org/v1/species/match?verbose=true&kingdom="+URLEncoder.encode(kingdomOfSpecies, "UTF-8")+"&name=";
-				s += URLEncoder.encode(occ.getScientificName(), "UTF-8");
-				URL url = new URL(s);
-
-				// read from the URL
-				Scanner scan = new Scanner(url.openStream(),"utf-8");
-				String str = new String();
-				while (scan.hasNext())
-					str += scan.nextLine();
-				scan.close();
-
-				// build a JSON object
-				parser = new JSONParser();		
-				try {
-					obj[0] = (JSONObject) parser.parse(str);
-				} catch (ParseException e) {
-
-					e.printStackTrace();
-				} 	
-
-				//If synonym get new name
-				if (((String) obj[0].get("rank")).equalsIgnoreCase("Species") || ((String) obj[0].get("rank")).equalsIgnoreCase("Subspecies")) {
-
-					String canonicalSpeciesOnly = (String) obj[0].get("canonicalName");
-
-					if (canonicalSpeciesOnly.lastIndexOf(" ") != canonicalSpeciesOnly.indexOf(" ")) {
-						canonicalSpeciesOnly = canonicalSpeciesOnly.substring(0, canonicalSpeciesOnly.lastIndexOf(" "));
-					}
-	
-					if (!canonicalSpeciesOnly.equalsIgnoreCase((String) obj[0].get("species"))) {
-
-						s = "https://api.gbif.org/v1/species/match?verbose=true&kingdom="+URLEncoder.encode(kingdomOfSpecies, "UTF-8")+"&name=";
-						s += URLEncoder.encode(((String) obj[0].get("species")), "UTF-8");
-						url = new URL(s);
-
-						// read from the URL
-						scan = new Scanner(url.openStream(),"utf-8");
-						str = new String();
-						while (scan.hasNext())
-							str += scan.nextLine();
-						scan.close();
-
-						// build a JSON object
-						parser = new JSONParser();		
-						try {
-							obj[1] = (JSONObject) parser.parse(str);
-						} catch (ParseException e) {
-
-							e.printStackTrace();
-						} 	
-					}
-				}
-				//0 will be original call, 1 will be the call for the synonym species
-				speciesJSONs.put(occ.getScientificName(),(JSONObject[]) obj.clone());
-
-			}
-
-			//Fetch original or synonym
-			int apiCall = 0;
-			if (speciesJSONs.get(occ.getScientificName())[1] != null) {
-				apiCall = 1;
-			} 
-
-			JSONObject[] currentJSON = speciesJSONs.get(occ.getScientificName());
-
-			String speciesName = occ.getScientificName();
-
-			String authorship = (String) currentJSON[apiCall].get("scientificName");
-
-			//Delete species authors
-			if(speciesName.contains("(")){
-				speciesName = (String) speciesName.subSequence(0, speciesName.indexOf('('));
-			}
-
-			//Store species authors
-			if(authorship.contains("(")){
-				occ.setNameAuthorship((String) authorship.subSequence(authorship.indexOf('('), authorship.indexOf(')')+1));
-				authorship = (String) authorship.subSequence(0, authorship.indexOf('('));
-			} else {
-
-				//Checks for author with date but no ( ) to delete
-				try {
-					if(speciesName.substring(speciesName.length()-2).matches("\\d+")) {					
-
-						//Gets rid of date
-						authorship += (String) speciesName.subSequence(speciesName.lastIndexOf(" "),speciesName.length());
-						speciesName = (String) speciesName.subSequence(0,speciesName.lastIndexOf(" "));
-
-						//Gets rid of author
-						authorship = (String) speciesName.subSequence(speciesName.lastIndexOf(" "),speciesName.length()) + authorship;
-						speciesName = (String) speciesName.subSequence(0,speciesName.lastIndexOf(" "));
+				//If the set of coordinates was not previously fetched from the API, it does so
+				if(!occurenceLocations.containsKey(latlon)) {
+					String loc = "https://nominatim.openstreetmap.org/reverse?lat="+URLEncoder.encode(lat, "UTF-8")+"&lon="+URLEncoder.encode(lon, "UTF-8")+"&format=json&zoom=12&accept-language=en";
+					URL url = new URL(loc);
 
 
-						//Checks for von
-						speciesName = (String) speciesName.replace(" von","");
+					// read from the URL
+					Scanner scan = new Scanner(url.openStream(),"utf-8");
+					String str = new String();
+					while (scan.hasNext())
+						str += scan.nextLine();
+					scan.close();
 
-						//Checks for &
-						if (speciesName.substring(speciesName.length()-1).matches("&")) {
-							//Gets rid of &
-							speciesName = (String) speciesName.subSequence(0,speciesName.lastIndexOf(" "));
+					// build a JSON object
+					parser = new JSONParser();		
+					try {
+						obj = (JSONObject) parser.parse(str);
+					} catch (ParseException e) {
 
-							//Gets rid of author
-							speciesName = (String) speciesName.subSequence(0,speciesName.lastIndexOf(" "));
+						e.printStackTrace();
+					} 	
 
-						}
-
-					} 
-				} catch (StringIndexOutOfBoundsException e) {
+					//Add the JSON object to the hashmap with the coordinates as key 
+					occurenceLocations.put(latlon, (JSONObject) obj.clone());
 
 				}
 
-				//Checks for author with date but no ( ) to store
-				try {
-					if(authorship.substring(authorship.length()-2).matches("\\d+")) {					
+				//Fetches the JSON information and attributes it to the correct columns
+				JSONObject address = (JSONObject) occurenceLocations.get(latlon).get("address");
 
-						String authorNoPar = "";
-
-						//Removes spaces from vons
-						authorship = (String) authorship.replace(" von "," von");
-
-						//Stores and removes date
-						authorNoPar += (String) authorship.subSequence(authorship.lastIndexOf(" "),authorship.length());
-						authorship = (String) authorship.subSequence(0,authorship.lastIndexOf(" "));
-
-						//Stores and removes author
-						authorNoPar = (String) authorship.subSequence(authorship.lastIndexOf(" "),authorship.length()) + authorNoPar;
-						authorship = (String) authorship.subSequence(0,authorship.lastIndexOf(" "));
+				occ.setVillage((String) address.get("village"));
+				occ.setCityDistrict((String) address.get("city_district"));
+				occ.setCounty((String) address.get("county"));
+				occ.setMunicipality((String) address.get("municipality"));
+				occ.setState((String) address.get("state"));
+				occ.setCountry((String) address.get("country"));
+				occ.setTown((String) address.get("town"));
+				occ.setCountry_code((String) address.get("country_code"));
 
 
-						occ.setNameAuthorship(authorNoPar);
-
-						//Checks for &
-						if (authorship.substring(authorship.length()-1).matches("&")) {
-							//Stores and removes &						
-							authorNoPar = (String) authorship.subSequence(authorship.lastIndexOf(" "),authorship.length()) + authorNoPar;
-							authorship = (String) authorship.subSequence(0,authorship.lastIndexOf(" "));
-
-							//Stores and removes the author
-							authorNoPar = (String) authorship.subSequence(authorship.lastIndexOf(" "),authorship.length()) + authorNoPar;
-							authorship = (String) authorship.subSequence(0,authorship.lastIndexOf(" "));
-
-							occ.setNameAuthorship(authorNoPar);
-						}		
-
-
-					} 
-				} catch (StringIndexOutOfBoundsException e) {
-
-				}
-			}
-
-			//Genus
-			String speciesGenus = "";
-			if(speciesName.contains(" ")){
-				speciesGenus = (String) speciesName.subSequence(0, speciesName.indexOf(' '));
-			} else {
-				speciesGenus = speciesName;
-			}
-
-			//Specific and Infra Epithet
-			String speciesEpithet = "";
-			String speciesInfraEpithet = "";
-			if(speciesName.contains(" ")){
-				if (speciesName.indexOf(' ') != speciesName.lastIndexOf(' ')) {
-					speciesEpithet = (String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.lastIndexOf(' '));
-					speciesInfraEpithet = (String) speciesName.subSequence(speciesName.lastIndexOf(' ')+1,speciesName.length());
-				} else {
-					speciesEpithet = (String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.length());
-					speciesInfraEpithet = "";
-				}
-			}
-			
-			//Define scientific name
-			occ.setSpecificEpithet(speciesEpithet);
-			occ.setInfraspecificEpithet(speciesInfraEpithet);
-
-
-
-
-			//Fixes strange matching with non matching items by making sure Kingdom matches come up empty in all taxonomic fields
-			if (((String) speciesJSONs.get(occ.getScientificName())[0].get("rank")).equalsIgnoreCase("KINGDOM")) {
-				occ.setAcceptedNameUsage((String) currentJSON[0].get("scientificName"));
-				occ.setKingdom((String) speciesJSONs.get(occ.getScientificName())[apiCall].get("kingdom"));
-				occ.setSpecificEpithet("");
-				occ.setInfraspecificEpithet("");
-				occ.setGenus("");
-				occ.setPhylum("");
-				occ.setClass("");
-				occ.setOrder("");
-				occ.setFamily("");
-				occ.setConfidence((long) speciesJSONs.get(occ.getScientificName())[0].get("confidence"));
-				occ.setTaxonRank((String) speciesJSONs.get(occ.getScientificName())[0].get("rank"));
-
-
-			} else {
-
-				//Sets the various taxonomic fields
-				occ.setAcceptedNameUsage((String) currentJSON[apiCall].get("scientificName"));
-
-				occ.setConfidence((long) speciesJSONs.get(occ.getScientificName())[0].get("confidence"));
-
-				try {
-					occ.setTaxonRank((String) speciesJSONs.get(occ.getScientificName())[0].get("rank"));
-				} catch (NullPointerException e) {
-				}
-
-				try {
-					occ.setKingdom((String) speciesJSONs.get(occ.getScientificName())[apiCall].get("kingdom"));
-				} catch (NullPointerException e) {
-				}
-				try {
-					occ.setPhylum((String) speciesJSONs.get(occ.getScientificName())[apiCall].get("phylum"));
-				} catch (NullPointerException e) {
-				}
-				try {
-					occ.setClass((String) speciesJSONs.get(occ.getScientificName())[apiCall].get("class"));
-				} catch (NullPointerException e) {
-				}
-				try {
-					occ.setOrder((String) speciesJSONs.get(occ.getScientificName())[apiCall].get("order"));
-				} catch (NullPointerException e) {
-				}
-				try {
-					occ.setFamily((String) speciesJSONs.get(occ.getScientificName())[apiCall].get("family"));	
-				} catch (NullPointerException e) {
-				}
-
-				try {
-					occ.setGenus(speciesGenus);		
-				} catch (NullPointerException e) {
-				}
-
+			} catch (IOException|NullPointerException e) {
+				System.out.println("No coordinates.");
 			}
 
 		}
 
+		///Writes the output csv
 
-
-		///WRITER
-
-		fileName = args[2];
+		fileName = args[1];
 		myPath = Paths.get(fileName);
 
 		try (BufferedWriter writer = Files.newBufferedWriter(myPath, StandardCharsets.UTF_8)) {
 
+			CustomBeanToCSVMappingStrategy<OccurenceForLocation> mappingStrategy = new CustomBeanToCSVMappingStrategy<>();
+			mappingStrategy.setType(OccurenceForLocation.class);
 
-			CustomBeanToCSVMappingStrategy<OccurenceForSpecies> mappingStrategy = new CustomBeanToCSVMappingStrategy<>();
-			mappingStrategy.setType(OccurenceForSpecies.class);
-
-			StatefulBeanToCsv<OccurenceForSpecies> beanToCsv = new StatefulBeanToCsvBuilder<OccurenceForSpecies>(writer)
+			StatefulBeanToCsv<OccurenceForLocation> beanToCsv = new StatefulBeanToCsvBuilder<OccurenceForLocation>(writer)
 					.withSeparator(CSVWriter.DEFAULT_SEPARATOR)
 					.withMappingStrategy(mappingStrategy)
 					.build();
@@ -346,14 +177,16 @@ public class SpeciesExtractor {
 
 		} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException |
 				IOException ex) {
-
+		
 			System.out.println("There is no output file or it is not accessible!");
 			System.exit(1);	
 
+			Logger.getLogger(LocationExtractor.class.getName()).log(
+					Level.SEVERE, ex.getMessage(), ex);
 		}
 
-		System.out.println("Complete!");
 
+		System.out.println("Complete!");
 
 	}
 
