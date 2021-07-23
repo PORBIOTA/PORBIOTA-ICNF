@@ -37,7 +37,7 @@ import org.json.simple.parser.ParseException;
 
 /**
  * 
- * @author Tomé
+ * @author Tomé Neves de Matos
  *
  * Main class that deals with calling the OpenStreetMaps API.
  *
@@ -69,8 +69,13 @@ public class LocationExtractor {
 
 			occurences = csvToBean.parse();
 
-		} catch (IOException e) {
+		} catch (IOException e) {			
 			System.out.println("There is no input file!");
+			System.exit(1);
+		}
+		catch (RuntimeException e) {
+			System.out.println("Either the .csv is not in UTF-8 or its delimiters are not commas(,)\n\n");			
+			e.printStackTrace();
 			System.exit(1);
 		}
 
