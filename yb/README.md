@@ -13,3 +13,10 @@ Takes one or two parameters:
 Example:
 ```python3 reverse_georref_ex.py ex_input.csv ex_output.csv```
 The program prints information about the input and output files and a ‘:’ on each query performed, ‘+’ when the cache file is updated and a ‘.’ for each coordinate processed from the cache. The cache file is in JSON format and is loaded from the current directory or created if it does not exist.
+
+
+## coltojson.py
+Convert values from various columns in CSV to single JSON string to be used DwC:dynamicProperties
+
+Example:
+```python3 coltojson.py ex_coltojson_inp.csv ex_coltojson_out.csv```
