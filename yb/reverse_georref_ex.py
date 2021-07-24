@@ -61,18 +61,18 @@ def getReverseGeorref(lat, long):
         result=cache[idx]
         print('.', end='')
     else:
-        address = 'https://nominatim.openstreetmap.org/reverse.php?lat={}&lon={}&zoom=10&format=jsonv2'.format(lat, long)
+        url = 'https://nominatim.openstreetmap.org/reverse.php?lat={}&lon={}&zoom=10&format=jsonv2&accept-language=en'.format(lat, long)
         time.sleep(1)
         txt='';
         try:
-            txt = session.get(address)
+            txt = session.get(url,headers=headers)
             parsed_json = json.loads(txt.text)
         except Exception as e:
             sys.stderr.write('Fail nomination API: %s\n'%str(e))
             return None
     
         #name = parsed_json.get('name')
-        address=parsed_json.get(address)
+        address=parsed_json.get('address')
         if address is None:
             address={}
         display_name = parsed_json.get('display_name')
