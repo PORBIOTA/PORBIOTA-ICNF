@@ -20,12 +20,16 @@
 
 import json
 import requests
-import os,sys
+import os,sys,platform
 import csv
 import time
 
+useragent="Python/3.0 (%s, %s, %s) %s/%s (+%s, Python/%s, %s, requests/%s)"%(
+  platform.system(),platform.architecture()[0],platform.machine(),
+  'revgeo','0.1','yb@',platform.python_version(), platform.python_implementation(),requests.__version__)
+
 headers={
-    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
+    "User-Agent": useragent,
     "Accept-Language": "en-US,en;q=0.5",
     "Accept": "application/json, text/javascript, */*; q=0.01",
     'Accept-Encoding': 'deflate, gzip',
