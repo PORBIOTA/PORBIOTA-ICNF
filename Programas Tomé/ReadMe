@@ -5,6 +5,9 @@ Location Extractor.rar
 
 Creates a CSV with the results obtained by inputing WGS84 coordinates into the OpenStreetMaps API.
 
+****
+Metadata Extractor.rar
+Creates a .txt with the metadata info extracted from a .csv darwinCore-like file.
 
 ****
 Species Extractor.rar
