@@ -2,10 +2,13 @@ package csvEditorSequentialLoad;
 
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -78,11 +81,13 @@ public class SpeciesExtractorSeqLoad {
 			//Opens writer
 			String fileName = args[2];
 			Path myPath = Paths.get(fileName);
-			try (BufferedWriter writer = Files.newBufferedWriter(myPath, StandardCharsets.UTF_8)) {
+			try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(myPath.toString()), "UTF-8"))) {
 
 
 				//Writes header line
-				writer.write("scientificName,acceptedNameUsage,kingdom,phylum,class,order,family,genus,specificEpithet,infraspecificEpithet,taxonRank,scientificNameAuthorship,confidence,matchType,occurenceID\n");
+				String[] header = {"scientificName","acceptedNameUsage","kingdom","phylum","class","order","family","genus",
+						"specificEpithet","infraspecificEpithet","taxonRank","scientificNameAuthorship","confidence","matchType","occurenceID"};
+				writer.writeNext(header);
 
 
 				String scientificNameCurrent;
@@ -368,31 +373,30 @@ public class SpeciesExtractorSeqLoad {
 
 					///WRITER
 
+					String[] line = 	{scientificNameCurrent,
+							acceptedNameUsageCurrent,
+							kingdomCurrent,
+							phylumCurrent,
+							classCurrent,
+							orderCurrent,
+							familyCurrent,
+							genusCurrent,
+							specificEpithetCurrent,
+							infraspecificEpithetCurrent,
+							taxonRankCurrent,
+							scientificNameAuthorshipCurrent,
+							String.valueOf(confidenceCurrent),
+							matchTypeCurrent,
+							occurenceIDCurrent};
 
-					writer.write("\""+scientificNameCurrent+"\",\"");
-					writer.write(acceptedNameUsageCurrent+"\",\"");
-					writer.write(kingdomCurrent+"\",\"");
-					writer.write(phylumCurrent+"\",\"");
-					writer.write(classCurrent+"\",\"");
-					writer.write(orderCurrent+"\",\"");
-					writer.write(familyCurrent+"\",\"");
-					writer.write(genusCurrent+"\",\"");
-					writer.write(specificEpithetCurrent+"\",\"");
-					writer.write(infraspecificEpithetCurrent+"\",\"");
-					writer.write(taxonRankCurrent+"\",\"");
-					writer.write(scientificNameAuthorshipCurrent+"\",\"");
-					writer.write(confidenceCurrent+"\",\"");
-					writer.write(matchTypeCurrent+"\",\"");
-					writer.write(occurenceIDCurrent+"\"\n");
+					writer.writeNext(line);
 
-					if (counter%100 == 0) {
-						writer.flush();
-					}
 				}
-				writer.close();
+				//No need to close as CSVWriter auto-closes
 				System.out.println("Complete!");
-			} catch ( IOException e) {
+			} catch (IOException e) {
 				System.out.println("There is no output file or it is not accessible!");
+				e.printStackTrace();
 				System.exit(1);	
 
 			} catch (CsvValidationException e) {			
