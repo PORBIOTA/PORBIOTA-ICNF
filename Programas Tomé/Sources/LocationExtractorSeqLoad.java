@@ -2,10 +2,14 @@ package csvEditorSequentialLoad;
 
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -23,7 +27,7 @@ import org.json.simple.parser.ParseException;
 
 /**
  * 
- * @author Tomé Neves de Matos
+ * @author TomÃ© Neves de Matos
  *
  * Main class that deals with calling the OpenStreetMaps API.
  *
@@ -55,6 +59,8 @@ public class LocationExtractorSeqLoad {
 		//Reads the input file
 		CSVReader csvReader;
 		String originalTablePath = args[0];
+		
+
 		try {
 			Reader originalReader = Files.newBufferedReader(Paths.get(originalTablePath), StandardCharsets.UTF_8 );
 			csvReader = new CSVReader(originalReader);
@@ -80,13 +86,17 @@ public class LocationExtractorSeqLoad {
 			//Opens writer
 			String fileName = args[1];
 			Path myPath = Paths.get(fileName);
-			try (BufferedWriter writer = Files.newBufferedWriter(myPath, StandardCharsets.UTF_8)) {
+			try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(myPath.toString()), "UTF-8"))) {
 
-
+				
 				//Writes header line
-				writer.write("decimalLatitude,decimalLongitude,village,city_district,town,county,municipality,state,country,countryCode\n");
+				String[] line = {"decimalLatitude","decimalLongitude","village","city_district","town","county","municipality","state","country","countryCode"};
+				writer.writeNext(line);
 
 				while ((occ = csvReader.readNext()) != null) {
+					
+					//Zero outs line to avoid conflicts
+					line = new String[line.length];
 
 					//Shows progress
 					System.out.println("Working on line " + counter);
@@ -127,26 +137,31 @@ public class LocationExtractorSeqLoad {
 					//Fetches the JSON information and attributes it to the correct columns
 					JSONObject address = (JSONObject) occurenceLocations.get(latlon).get("address");
 
-					writer.write(lat+","+lon+",");
+					
+					line[0] = lat;
+					line[1] = lon;
 					String countryCode;
 					if (address != null ) {		
 
-						writer.write(Optional.ofNullable(address.get("village")).orElse("")+",");
-						writer.write(Optional.ofNullable(address.get("city_district")).orElse("")+",");
-						writer.write(Optional.ofNullable(address.get("town")).orElse("")+",");
-						writer.write(Optional.ofNullable(address.get("county")).orElse("")+",");
-						writer.write(Optional.ofNullable(address.get("municipality")).orElse("")+",");
-						writer.write(Optional.ofNullable(address.get("state")).orElse("")+",");
-						writer.write(Optional.ofNullable(address.get("country")).orElse("")+",");
+						line[2] = (String) Optional.ofNullable(address.get("village")).orElse("");
+						line[3] = (String) Optional.ofNullable(address.get("city_district")).orElse("");
+						line[4] = (String) Optional.ofNullable(address.get("town")).orElse("");
+						line[5] = (String) Optional.ofNullable(address.get("county")).orElse("");
+						line[6] = (String) Optional.ofNullable(address.get("municipality")).orElse("");
+						line[7] = (String) Optional.ofNullable(address.get("state")).orElse("");
+						line[8] = (String) Optional.ofNullable(address.get("country")).orElse("");
 						countryCode = (String) Optional.ofNullable(address.get("country_code")).orElse("");
-						writer.write(countryCode.toUpperCase()+"\n");
+						line[9] = countryCode.toUpperCase();
 					}
-
+					
+					writer.writeNext(line);
+					
 					if (counter%100 == 0) {
 						writer.flush();
 					}
 				}
-				writer.close();
+				
+				//No need to close as CSVWriter auto-closes
 				System.out.println("Complete!");
 
 
