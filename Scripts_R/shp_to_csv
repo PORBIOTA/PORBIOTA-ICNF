@@ -1,0 +1,47 @@
+######################################################
+#                      LIBRARY                       #
+######################################################
+
+install.packages("easypackage")
+library(easypackages)
+packages('readxl', 'tidyverse', 'lubridate', 'ggplot2', 'rgdal', 'sf', 'sp',
+         'maptools', 'mapdata')
+
+
+#Se o código da linha 7 não funcionar, repetem o código da linha 5 e 6, 
+#mas mudando o nome do package
+
+
+######################################################
+#                 IMPORTAR SHAPEFILE                 #
+######################################################
+
+
+#Alterem a diretoria para onde têm a vossa shapefile, deixando sempre .shp
+#As barras da diretoria têm de estar como no exemplo (/)
+
+database=st_read("C:/Desktop/teste.shp")%>%
+  dplyr::mutate_if(is.character, iconv, to = 'UTF-8' )
+
+#Vejam o resultado em baixo e confirmem o "Projected CRS" 
+#Pesquisem o nome do "Projected CRS" na net até encontrarem o código em números
+#Inserir esse código abaixo em "st_set_crs()" substituindo os números a azul pelo código
+
+database2=database %>%
+  st_set_crs(3763) %>% #SUBSTITUIR AQUI!!!
+  st_transform(4326) %>%
+  mutate(lon=st_coordinates(.)[,1],
+        lat=st_coordinates(.)[,2]) %>%
+  st_drop_geometry()
+
+head(database2)
+
+######################################################
+#                   EXPORTAR CSV                     #
+######################################################
+
+#Alterem a diretoria para onde querem exportar o ficheiro, deixando sempre .csv
+
+st_write(database2, dsn = "C:/Desktop/teste.csv", 
+         driver = "csv")
+
