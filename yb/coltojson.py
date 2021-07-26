@@ -24,7 +24,7 @@ else:
     outfilename='output.csv'
 print("Using for output '%s'"%outfilename)
 
-with open(inpfilename, 'rU') as csvfile:
+with open(inpfilename, 'r') as csvfile:
     dialect = csv.Sniffer().sniff(csvfile.read(10240))
     print("Detected csv input: separator:%s, quote:%s, eol:%s"%(repr(dialect.delimiter),repr(dialect.quotechar),repr(dialect.lineterminator)))
     csvfile.seek(0)
