@@ -97,8 +97,6 @@ def getReverseGeorref(lat, long):
           local = prev[0]
         else:
           local=''
-        if (len(local) == 0 and municipality is not None):
-            local = municipality
     
         local = local.rstrip()
         local = local.rstrip(',')
@@ -135,7 +133,7 @@ else:
 print("Using for output '%s'"%outfilename)
 
 #%%
-with open(inpfilename, 'rU') as csvfile:
+with open(inpfilename, 'r') as csvfile:
     dialect = csv.Sniffer().sniff(csvfile.read(10240))
     print("Detected csv input: separator:%s, quote:%s, eol:%s"%(repr(dialect.delimiter),repr(dialect.quotechar),repr(dialect.lineterminator)))
     csvfile.seek(0)
