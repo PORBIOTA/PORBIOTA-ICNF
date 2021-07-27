@@ -45,6 +45,7 @@ outdata=[keycolnames+["name","value"]]
 for i in range(1,len(inpdata)):
     thisinpline=[]
     for v in valcolnums:
+      if inpdata[i][v-1]:
         keys=[inpdata[i][k] for k in range(len(inpdata[i])) if k+1 in keycolnums]
         thisinpline.append(keys+[inpdata[0][v-1],inpdata[i][v-1]])
     outdata.extend(thisinpline)
