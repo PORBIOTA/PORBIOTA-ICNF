@@ -20,3 +20,13 @@ Convert values from various columns in CSV to single JSON string to be used DwC:
 
 Example:
 ```python3 coltojson.py ex_coltojson_inp.csv ex_coltojson_out.csv```
+
+## unpivot_csv.py
+Performs reverse pivot on a table selecting columns to be used for keys.
+
+Example:
+```python3 unpivot_csv.py 1,2,9,10 table.csv table_unpivot.csv```
+
+- list of columns numbers to be used for key, numbers only, coma separated, no spaces (default “1”);
+- input csv table file name (default “table.csv”);
+- ouput csv table file name (default “table_unpivot.csv”);
