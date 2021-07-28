@@ -5,7 +5,6 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 
-import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -20,6 +19,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.UUID;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -153,6 +153,34 @@ public class SpeciesExtractorSeqLoad {
 							e.printStackTrace();
 						} 	
 
+						//If no match, goes to next unless fuzzy match
+						if (((String) obj[0].get("matchType")).equalsIgnoreCase("none") ) {			
+							if ( obj[0].get("alternatives") == null ) {
+								String[] line = 	{occ[scientificNameID],
+										"",
+										"",
+										"",
+										"",
+										"",
+										"",
+										"",
+										"",
+										"",
+										"",
+										"",
+										"0",
+										"",
+										occurenceIDCurrent};
+
+								writer.writeNext(line);
+
+								continue;
+							} else {
+								obj[0] = (JSONObject) ((JSONArray) obj[0].get("alternatives")).get(0);
+							}
+						}
+
+
 						//If synonym get new name
 						if (((String) obj[0].get("rank")).equalsIgnoreCase("Species") || ((String) obj[0].get("rank")).equalsIgnoreCase("Subspecies")) {
 
@@ -201,102 +229,28 @@ public class SpeciesExtractorSeqLoad {
 
 					String speciesName = occ[scientificNameID];
 
-					String authorship = (String) currentJSON[apiCall].get("scientificName");
 
-					//Delete species authors
-					if(speciesName.contains("(")){
-						speciesName = (String) speciesName.subSequence(0, speciesName.indexOf('('));
-					}
+					//Captures author names
+					scientificNameAuthorshipCurrent = (String) currentJSON[apiCall].get("scientificName");
 
-					//Store species authors
-					if(authorship.contains("(")){
-						scientificNameAuthorshipCurrent = ((String) authorship.subSequence(authorship.indexOf('('), authorship.indexOf(')')+1));
-						authorship = (String) authorship.subSequence(0, authorship.indexOf('('));
-					} else {
-
-						//Checks for author with date but no ( ) to delete
-						try {
-							if(speciesName.substring(speciesName.length()-2).matches("\\d+")) {					
-
-								//Gets rid of date
-								authorship += (String) speciesName.subSequence(speciesName.lastIndexOf(" "),speciesName.length());
-								speciesName = (String) speciesName.subSequence(0,speciesName.lastIndexOf(" "));
-
-								//Gets rid of author
-								authorship = (String) speciesName.subSequence(speciesName.lastIndexOf(" "),speciesName.length()) + authorship;
-								speciesName = (String) speciesName.subSequence(0,speciesName.lastIndexOf(" "));
-
-
-								//Checks for von
-								speciesName = (String) speciesName.replace(" von","");
-
-								//Checks for &
-								if (speciesName.substring(speciesName.length()-1).matches("&")) {
-									//Gets rid of &
-									speciesName = (String) speciesName.subSequence(0,speciesName.lastIndexOf(" "));
-
-									//Gets rid of author
-									speciesName = (String) speciesName.subSequence(0,speciesName.lastIndexOf(" "));
-
-								}
-
-							} 
-						} catch (StringIndexOutOfBoundsException e) {
-
+					// Try block is to catch species without author
+					try {	
+						if ("subspecies".equalsIgnoreCase((String) currentJSON[apiCall].get("rank"))) {
+							if (scientificNameAuthorshipCurrent.contains("var. ")) {					
+								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf("var. ")+5)+1);
+							} else if (scientificNameAuthorshipCurrent.contains("subsp. ")) {
+								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf("subsp. ")+7)+1);
+							} else {
+								//gets the string after the second space (" ")
+								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf(" ",scientificNameAuthorshipCurrent.indexOf(" ")+1)+1)+1);						}
+						} else if ("species".equalsIgnoreCase((String) currentJSON[apiCall].get("rank"))){
+							//gets after the second the first space (" ")
+							scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf(" ")+1)+1);
+						} else {
+							scientificNameAuthorshipCurrent = "";
 						}
-
-						//Checks for author with date but no ( ) to store
-						try {
-							if(authorship.substring(authorship.length()-2).matches("\\d+")) {					
-								/**
-								 * 
-								 */
-								String authorNoPar = "";
-
-								//Fixes vons
-								boolean wasThereVon = false;
-								String beforeVon = authorship;
-								//Removes spaces from vons
-								authorship = (String) authorship.replace(" von "," von");
-								if (!authorship.equals(beforeVon)) {
-									wasThereVon = true;
-								}
-
-
-								//Stores and removes date
-								authorNoPar += (String) authorship.subSequence(authorship.lastIndexOf(" "),authorship.length());
-								authorship = (String) authorship.subSequence(0,authorship.lastIndexOf(" "));
-
-								//Stores and removes author
-								authorNoPar = (String) authorship.subSequence(authorship.lastIndexOf(" "),authorship.length()) + authorNoPar;
-								authorship = (String) authorship.subSequence(0,authorship.lastIndexOf(" "));				
-
-								try {
-									//Checks for &
-									if (authorship.substring(authorship.length()-1).matches("&")) {
-										//Stores and removes &						
-										authorNoPar = (String) authorship.subSequence(authorship.lastIndexOf(" "),authorship.length()) + authorNoPar;
-										authorship = (String) authorship.subSequence(0,authorship.lastIndexOf(" "));
-
-										//Stores and removes the author
-										authorNoPar = (String) authorship.subSequence(authorship.lastIndexOf(" "),authorship.length()) + authorNoPar;
-										authorship = (String) authorship.subSequence(0,authorship.lastIndexOf(" "));
-
-
-									}		
-								} catch (StringIndexOutOfBoundsException e) {
-
-								}
-								if (wasThereVon) {
-									authorNoPar = authorNoPar.replace(" von"," von ");
-								}
-
-								scientificNameAuthorshipCurrent = authorNoPar;
-
-							} 
-						} catch (StringIndexOutOfBoundsException e) {
-
-						}
+					} catch (StringIndexOutOfBoundsException e) {
+						scientificNameAuthorshipCurrent = "";
 					}
 
 					//Genus
@@ -312,7 +266,7 @@ public class SpeciesExtractorSeqLoad {
 					String speciesInfraEpithet = "";
 					if(speciesName.contains(" ")){
 						if (speciesName.indexOf(' ') != speciesName.lastIndexOf(' ')) {
-							speciesEpithet = (String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.lastIndexOf(' '));
+							speciesEpithet = ((String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.lastIndexOf(' '))).replace(" subsp.", "").replace(" var.", "");
 							speciesInfraEpithet = (String) speciesName.subSequence(speciesName.lastIndexOf(' ')+1,speciesName.length());
 						} else {
 							speciesEpithet = (String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.length());
@@ -373,7 +327,7 @@ public class SpeciesExtractorSeqLoad {
 
 					///WRITER
 
-					String[] line = 	{scientificNameCurrent,
+					String[] line = 	{occ[scientificNameID],
 							acceptedNameUsageCurrent,
 							kingdomCurrent,
 							phylumCurrent,
@@ -409,6 +363,7 @@ public class SpeciesExtractorSeqLoad {
 		}
 		catch (RuntimeException e) {
 			System.out.println("Either the .csv is not in UTF-8 or its delimiters are not commas(,)");
+			e.printStackTrace();
 			System.exit(1);
 		} catch (CsvValidationException e) {
 			e.printStackTrace();
