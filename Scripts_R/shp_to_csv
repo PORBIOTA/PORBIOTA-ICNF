@@ -42,6 +42,4 @@ head(database2)
 
 #Alterem a diretoria para onde querem exportar o ficheiro, deixando sempre .csv
 
-st_write(database2, dsn = "C:/Desktop/teste.csv", 
-         driver = "csv")
-
+write.csv(database2, "C:/Desktop/teste.csv")
