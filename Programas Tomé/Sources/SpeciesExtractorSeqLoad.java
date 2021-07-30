@@ -28,21 +28,21 @@ import org.json.simple.parser.ParseException;
 
 public class SpeciesExtractorSeqLoad {
 
-	private static int latID=0;
-	private static int longID=0;			 
-	private static int scientificNameID=0;
-	private static int acceptedNameUsageID=0;
-	private static int kingdomID=0;				
-	private static int phylumID=0;
-	private static int classID=0;				
-	private static int orderID=0;				
-	private static int familyID=0;				
-	private static int genusID=0;
-	private static int specificEpithetID=0;				
-	private static int infraspecificEpithetID=0;				
-	private static int taxonRankID=0;			
-	private static int countryID=0;					
-	private static int dateID=0;	
+	private static int latID=-1;
+	private static int longID=-1;			 
+	private static int scientificNameID=-1;
+	private static int acceptedNameUsageID=-1;
+	private static int kingdomID=-1;				
+	private static int phylumID=-1;
+	private static int classID=-1;				
+	private static int orderID=-1;				
+	private static int familyID=-1;				
+	private static int genusID=-1;
+	private static int specificEpithetID=-1;				
+	private static int infraspecificEpithetID=-1;				
+	private static int taxonRankID=-1;			
+	private static int countryID=-1;					
+	private static int dateID=-1;	
 
 
 
@@ -129,7 +129,12 @@ public class SpeciesExtractorSeqLoad {
 					obj = new JSONObject[2];
 
 					occurenceIDCurrent = UUID.randomUUID().toString();
-					scientificNameCurrent =	occ[scientificNameID].replace(" sp.", "");
+					try {
+					scientificNameCurrent =	occ[scientificNameID].replaceAll("( sp.)$", "").replaceAll("( spp.)$", "").replaceAll("( spp)$","");
+					} catch (ArrayIndexOutOfBoundsException e ) {
+						System.out.println("No scientificName header found!");
+						System.exit(1);
+					}
 
 					if (!speciesJSONs.containsKey(occ[scientificNameID])) {	
 
@@ -327,7 +332,7 @@ public class SpeciesExtractorSeqLoad {
 
 					///WRITER
 
-					String[] line = 	{occ[scientificNameID],
+					String[] line = 	{scientificNameCurrent,
 							acceptedNameUsageCurrent,
 							kingdomCurrent,
 							phylumCurrent,
