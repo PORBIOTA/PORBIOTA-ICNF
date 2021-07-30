@@ -232,7 +232,7 @@ public class SpeciesExtractorSeqLoad {
 
 					JSONObject[] currentJSON = speciesJSONs.get(occ[scientificNameID]);
 
-					String speciesName = occ[scientificNameID];
+					String speciesName = scientificNameCurrent;
 
 
 					//Captures author names
@@ -332,7 +332,7 @@ public class SpeciesExtractorSeqLoad {
 
 					///WRITER
 
-					String[] line = 	{scientificNameCurrent,
+					String[] line = 	{occ[scientificNameID],
 							acceptedNameUsageCurrent,
 							kingdomCurrent,
 							phylumCurrent,
