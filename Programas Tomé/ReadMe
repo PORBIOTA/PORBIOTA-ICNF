@@ -15,6 +15,11 @@ Species Extractor.rar
 Creates a CSV with the results obtained by cross referencing the species name in one CSV with those from GBIF API.
 Aditionally it creates an occurenceID for each occurence.
 
+****
+Timezone Extractor.rar
+
+Creates a CSV with an added column with the time zone of the coordinates when compared to UTC.
+
 *****
 Table Joiner.rar
 
