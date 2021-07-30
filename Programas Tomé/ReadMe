@@ -19,6 +19,8 @@ Aditionally it creates an occurenceID for each occurence.
 Timezone Extractor.rar
 
 Creates a CSV with an added column with the time zone of the coordinates when compared to UTC.
+This was .rar'd in two parts because the file was too big (30mb).
+This is due to it including the timezone database so as to avoid using an online API.
 
 *****
 Table Joiner.rar
