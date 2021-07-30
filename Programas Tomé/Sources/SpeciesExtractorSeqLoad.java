@@ -130,7 +130,7 @@ public class SpeciesExtractorSeqLoad {
 
 					occurenceIDCurrent = UUID.randomUUID().toString();
 					try {
-					scientificNameCurrent =	occ[scientificNameID].replaceAll("( sp.)$", "").replaceAll("( spp.)$", "").replaceAll("( spp)$","");
+						scientificNameCurrent =	occ[scientificNameID].replaceAll("( sp.)$", "").replaceAll("( spp.)$", "").replaceAll("( spp)$","");
 					} catch (ArrayIndexOutOfBoundsException e ) {
 						System.out.println("No scientificName header found!");
 						System.exit(1);
@@ -246,13 +246,14 @@ public class SpeciesExtractorSeqLoad {
 							} else if (scientificNameAuthorshipCurrent.contains("subsp. ")) {
 								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf("subsp. ")+7)+1);
 							} else {
-								//gets the string after the second space (" ")
+								//gets the string after the third space (" ")
 								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf(" ",scientificNameAuthorshipCurrent.indexOf(" ")+1)+1)+1);						}
 						} else if ("species".equalsIgnoreCase((String) currentJSON[apiCall].get("rank"))){
-							//gets after the second the first space (" ")
+							//gets the string after the second  space (" ")
 							scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf(" ")+1)+1);
-						} else {
-							scientificNameAuthorshipCurrent = "";
+						} else if ("genus".equalsIgnoreCase((String) currentJSON[apiCall].get("rank"))){
+							//gets the string after the the first space (" ")
+							scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ")+1);
 						}
 					} catch (StringIndexOutOfBoundsException e) {
 						scientificNameAuthorshipCurrent = "";
