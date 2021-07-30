@@ -24,7 +24,7 @@ import java.util.Optional;
 
 /**
  * 
- * @author Tomé Neves de Matos
+ * @author TomÃ© Neves de Matos
  *
  * Main class that deals with calling the OpenStreetMaps API.
  *
@@ -140,17 +140,17 @@ public class TimeZoneExtractor {
 							
 					try {
 						year = Integer.parseInt(occ[dateID].substring(0,4));
-					} catch (ArrayIndexOutOfBoundsException e) {
+					} catch (StringIndexOutOfBoundsException e) {
 						
 					}
 					try {
 						month = Integer.parseInt(occ[dateID].substring(5,7));
-					} catch (ArrayIndexOutOfBoundsException e) {
+					} catch (StringIndexOutOfBoundsException e) {
 
 					}					
 					try {
 						day = Integer.parseInt(occ[dateID].substring(8,10));		
-					} catch (ArrayIndexOutOfBoundsException e) {
+					} catch (StringIndexOutOfBoundsException e) {
 
 					}
 
