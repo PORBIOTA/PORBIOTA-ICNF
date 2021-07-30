@@ -5,9 +5,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 
-import java.io.BufferedWriter;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
@@ -90,7 +88,7 @@ public class LocationExtractorSeqLoad {
 
 				
 				//Writes header line
-				String[] line = {"decimalLatitude","decimalLongitude","village","city_district","town","county","municipality","state","country","countryCode"};
+				String[] line = {"decimalLatitude","decimalLongitude","hamlet","village","city_district","town","county","municipality","state","country","countryCode"};
 				writer.writeNext(line);
 
 				while ((occ = csvReader.readNext()) != null) {
@@ -109,7 +107,7 @@ public class LocationExtractorSeqLoad {
 
 					//If the set of coordinates was not previously fetched from the API, it does so
 					if(!occurenceLocations.containsKey(latlon)) {
-						String loc = "https://nominatim.openstreetmap.org/reverse?lat="+URLEncoder.encode(lat, "UTF-8")+"&lon="+URLEncoder.encode(lon, "UTF-8")+"&format=json&zoom=12&accept-language=en";
+						String loc = "https://nominatim.openstreetmap.org/reverse?lat="+URLEncoder.encode(lat, "UTF-8")+"&lon="+URLEncoder.encode(lon, "UTF-8")+"&format=json&accept-language=en";
 						URL url = new URL(loc);
 
 
@@ -142,16 +140,16 @@ public class LocationExtractorSeqLoad {
 					line[1] = lon;
 					String countryCode;
 					if (address != null ) {		
-
-						line[2] = (String) Optional.ofNullable(address.get("village")).orElse("");
-						line[3] = (String) Optional.ofNullable(address.get("city_district")).orElse("");
-						line[4] = (String) Optional.ofNullable(address.get("town")).orElse("");
-						line[5] = (String) Optional.ofNullable(address.get("county")).orElse("");
-						line[6] = (String) Optional.ofNullable(address.get("municipality")).orElse("");
-						line[7] = (String) Optional.ofNullable(address.get("state")).orElse("");
-						line[8] = (String) Optional.ofNullable(address.get("country")).orElse("");
+						line[2] = (String) Optional.ofNullable(address.get("hamlet")).orElse("");
+						line[3] = (String) Optional.ofNullable(address.get("village")).orElse("");
+						line[4] = (String) Optional.ofNullable(address.get("city_district")).orElse("");
+						line[5] = (String) Optional.ofNullable(address.get("town")).orElse("");
+						line[6] = (String) Optional.ofNullable(address.get("county")).orElse("");
+						line[7] = (String) Optional.ofNullable(address.get("municipality")).orElse("");
+						line[8] = (String) Optional.ofNullable(address.get("state")).orElse("");
+						line[9] = (String) Optional.ofNullable(address.get("country")).orElse("");
 						countryCode = (String) Optional.ofNullable(address.get("country_code")).orElse("");
-						line[9] = countryCode.toUpperCase();
+						line[10] = countryCode.toUpperCase();
 					}
 					
 					writer.writeNext(line);
@@ -167,6 +165,7 @@ public class LocationExtractorSeqLoad {
 
 			} catch (IOException e) {			
 				System.out.println("Output file is not accessible!");
+				e.printStackTrace();
 				System.exit(1);
 			}
 			///Counts Species and etc
