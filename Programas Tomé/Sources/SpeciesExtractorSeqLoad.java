@@ -159,7 +159,7 @@ public class SpeciesExtractorSeqLoad {
 						} 	
 
 						//If no match, goes to next unless fuzzy match
-						if (((String) obj[0].get("matchType")).equalsIgnoreCase("none") ) {			
+						if (((String) obj[0].get("matchType")).equalsIgnoreCase("none") || ((String) obj[0].get("rank")).equalsIgnoreCase("kingdom")) {			
 							if ( obj[0].get("alternatives") == null ) {
 								String[] line = 	{occ[scientificNameID],
 										"",
