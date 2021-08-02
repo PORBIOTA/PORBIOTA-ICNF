@@ -324,8 +324,12 @@ public class SpeciesExtractorSeqLoad {
 						} catch (NullPointerException e) {
 						}
 
+
+						genusCurrent = speciesGenus;		
+
+
 						try {
-							genusCurrent = (speciesGenus);		
+							matchTypeCurrent = ((String) speciesJSONs.get(occ[scientificNameID])[apiCall].get("matchType"));		
 						} catch (NullPointerException e) {
 						}
 
