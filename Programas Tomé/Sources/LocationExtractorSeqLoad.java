@@ -88,7 +88,7 @@ public class LocationExtractorSeqLoad {
 
 				
 				//Writes header line
-				String[] line = {"decimalLatitude","decimalLongitude","hamlet","village","city_district","town","county","municipality","state","country","countryCode"};
+				String[] line = {"decimalLatitude","decimalLongitude","hamlet","borough","village","city_district","town","city","county","municipality","province","state","country","countryCode"};
 				writer.writeNext(line);
 
 				while ((occ = csvReader.readNext()) != null) {
@@ -134,22 +134,24 @@ public class LocationExtractorSeqLoad {
 
 					//Fetches the JSON information and attributes it to the correct columns
 					JSONObject address = (JSONObject) occurenceLocations.get(latlon).get("address");
-
-					
+				
 					line[0] = lat;
 					line[1] = lon;
 					String countryCode;
 					if (address != null ) {		
 						line[2] = (String) Optional.ofNullable(address.get("hamlet")).orElse("");
-						line[3] = (String) Optional.ofNullable(address.get("village")).orElse("");
-						line[4] = (String) Optional.ofNullable(address.get("city_district")).orElse("");
-						line[5] = (String) Optional.ofNullable(address.get("town")).orElse("");
-						line[6] = (String) Optional.ofNullable(address.get("county")).orElse("");
-						line[7] = (String) Optional.ofNullable(address.get("municipality")).orElse("");
-						line[8] = (String) Optional.ofNullable(address.get("state")).orElse("");
-						line[9] = (String) Optional.ofNullable(address.get("country")).orElse("");
+						line[3] = (String) Optional.ofNullable(address.get("borough")).orElse("");
+						line[4] = (String) Optional.ofNullable(address.get("village")).orElse("");
+						line[5] = (String) Optional.ofNullable(address.get("city_district")).orElse("");
+						line[6] = (String) Optional.ofNullable(address.get("town")).orElse("");
+						line[7] = (String) Optional.ofNullable(address.get("city")).orElse("");
+						line[8] = (String) Optional.ofNullable(address.get("county")).orElse("");
+						line[9] = (String) Optional.ofNullable(address.get("municipality")).orElse("");
+						line[10] = (String) Optional.ofNullable(address.get("province")).orElse("");
+						line[11] = (String) Optional.ofNullable(address.get("state")).orElse("");
+						line[12] = (String) Optional.ofNullable(address.get("country")).orElse("");
 						countryCode = (String) Optional.ofNullable(address.get("country_code")).orElse("");
-						line[10] = countryCode.toUpperCase();
+						line[13] = countryCode.toUpperCase();
 					}
 					
 					writer.writeNext(line);
