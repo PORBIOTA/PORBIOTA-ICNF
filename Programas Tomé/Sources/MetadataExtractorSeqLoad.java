@@ -20,25 +20,25 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
 public class MetadataExtractorSeqLoad {
-	
-	private static int latID=0;
-	private static int longID=0;			 
-	private static int scientificNameID=0;
-	private static int acceptedNameUsageID=0;
-	private static int kingdomID=0;				
-	private static int phylumID=0;
-	private static int classID=0;				
-	private static int orderID=0;				
-	private static int familyID=0;				
-	private static int genusID=0;
-	private static int specificEpithetID=0;				
-	private static int infraspecificEpithetID=0;				
-	private static int taxonRankID=0;			
-	private static int countryID=0;					
-	private static int dateID=0;	
+
+	private static int latID=-1;
+	private static int longID=-1;			 
+	private static int scientificNameID=-1;
+	private static int acceptedNameUsageID=-1;
+	private static int kingdomID=-1;				
+	private static int phylumID=-1;
+	private static int classID=-1;				
+	private static int orderID=-1;				
+	private static int familyID=-1;				
+	private static int genusID=-1;
+	private static int specificEpithetID=-1;				
+	private static int infraspecificEpithetID=-1;				
+	private static int taxonRankID=-1;			
+	private static int countryID=-1;					
+	private static int dateID=-1;	
 
 	public static void main(String[] args) {
-		
+
 		int counter = 1;
 
 
@@ -76,10 +76,10 @@ public class MetadataExtractorSeqLoad {
 			oldestDate[i]=	presentDay;
 		}
 
-		double latNorth = 0;
-		double latSouth = 0;
-		double longEast = 0;
-		double longWest = 0;
+		double latNorth = -99999;
+		double latSouth = 999999;
+		double longEast = -99999;
+		double longWest = 99999;
 
 
 		//Reads the input file
@@ -94,9 +94,9 @@ public class MetadataExtractorSeqLoad {
 			String[] occ;
 
 			//get headers
-			
+
 			attributeHeaders(csvReader.readNext());
-			
+
 
 
 			while ((occ = csvReader.readNext()) != null) {
@@ -116,7 +116,7 @@ public class MetadataExtractorSeqLoad {
 					genus.add(occ[genusID]);
 					genusCount++;
 				}
-				
+
 				if (!family.contains(occ[familyID]) && occ[familyID].length() != 0) {
 					family.add(occ[familyID]);
 					familyCount++;
@@ -147,34 +147,35 @@ public class MetadataExtractorSeqLoad {
 					countryCount++;
 				}
 
-				//Checks for earliest date
-				for (int i = 0;i <10 ; i++) {				
-					if (occ[dateID].substring(0,4).compareTo(oldestDate[i]) < 0) {
-						//pushes all others forward
-						for (int a = 8; a>=i; a--) {
-							oldestDate[a+1] = oldestDate[a]; 
-						}					
-						oldestDate[i] = occ[dateID].substring(0,4);
-						break;
-					} else if (occ[dateID].substring(0,4).compareTo(oldestDate[i]) == 0) {
-						break;
+				if(dateID > -1) {
+					//Checks for earliest date
+					for (int i = 0;i <10 ; i++) {				
+						if (occ[dateID].substring(0,4).compareTo(oldestDate[i]) < 0) {
+							//pushes all others forward
+							for (int a = 8; a>=i; a--) {
+								oldestDate[a+1] = oldestDate[a]; 
+							}					
+							oldestDate[i] = occ[dateID].substring(0,4);
+							break;
+						} else if (occ[dateID].substring(0,4).compareTo(oldestDate[i]) == 0) {
+							break;
+						}
+					}
+
+					//Checks for newest date
+					for (int i = 0;i <10 ; i++) {				
+						if (occ[dateID].substring(0,4).compareTo(newestDate[i]) > 0) {
+							//pushes all others forward
+							for (int a = 8; a>=i; a--) {
+								newestDate[a+1] = newestDate[a]; 
+							}					
+							newestDate[i] = occ[dateID].substring(0,4);
+							break;
+						} else if (occ[dateID].substring(0,4).compareTo(newestDate[i]) == 0) {
+							break;
+						}
 					}
 				}
-
-				//Checks for newest date
-				for (int i = 0;i <10 ; i++) {				
-					if (occ[dateID].substring(0,4).compareTo(newestDate[i]) > 0) {
-						//pushes all others forward
-						for (int a = 8; a>=i; a--) {
-							newestDate[a+1] = newestDate[a]; 
-						}					
-						newestDate[i] = occ[dateID].substring(0,4);
-						break;
-					} else if (occ[dateID].substring(0,4).compareTo(newestDate[i]) == 0) {
-						break;
-					}
-				}
-
 				//Checks for bounding box
 				if (Double.parseDouble(occ[latID])>latNorth) {
 					latNorth = Double.parseDouble(occ[latID]);
@@ -221,20 +222,23 @@ public class MetadataExtractorSeqLoad {
 			writer.write("Southernmost Latitude: "+ latSouth +"\n");
 			writer.write("Easternmost Longitude: "+ longEast +"\n");
 			writer.write("Westernmost Longitude: "+ longWest +"\n");
-			writer.write("\n\nOldest Record:" + oldestDate[0] +"\n");
-			writer.write("The next oldest 9 record dates: ");
-			for (int i = 1; i<10; i++) {
-				writer.write(oldestDate[i] + " ");
+			if (dateID > -1) {
+				writer.write("\n\nOldest Record:" + oldestDate[0] +"\n");
+				writer.write("The next oldest 9 record dates: ");
+				for (int i = 1; i<10; i++) {
+					writer.write(oldestDate[i] + " ");
+				}
+				writer.write("\n\nNewest Record:" + newestDate[0] +"\n");
+				writer.write("The next newest 9 record dates: ");
+				for (int i = 1; i<10; i++) {
+					writer.write(newestDate[i] + " ");
+				}
 			}
-			writer.write("\n\nNewest Record:" + newestDate[0] +"\n");
-			writer.write("The next newest 9 record dates: ");
-			for (int i = 1; i<10; i++) {
-				writer.write(newestDate[i] + " ");
-			}
-
 
 			List<String> list;
 			Iterator<String> iter;
+
+
 
 			writer.write("\n\nKingdom names:\n");			
 			list = new ArrayList<String>(kingdom);
@@ -267,7 +271,7 @@ public class MetadataExtractorSeqLoad {
 			while(iter.hasNext()) {
 				writer.write((String) iter.next() + "\n");
 			}
-			
+
 			writer.write("\nFamily names:\n");			
 			list = new ArrayList<String>(family);
 			Collections.sort(list);
@@ -301,6 +305,89 @@ public class MetadataExtractorSeqLoad {
 				writer.write((String) iter.next() + "\n");
 			}
 
+			///Write XML code for species
+			/**
+			 * For metadata XML
+			 * 
+
+      <taxonomicClassification>
+                  <taxonRankName>kingdom</taxonRankName>
+                <taxonRankValue>Plantae</taxonRankValue>
+              </taxonomicClassification>
+
+
+              <taxonomicClassification>
+                  <taxonRankName>phylum</taxonRankName>
+                <taxonRankValue>Pteridophyta</taxonRankValue>
+              </taxonomicClassification>
+
+              <taxonomicClassification>
+                  <taxonRankName>class</taxonRankName>
+                <taxonRankValue>Liliopsida</taxonRankValue>
+              </taxonomicClassification>
+
+              <taxonomicClassification>
+                  <taxonRankName>order</taxonRankName>
+                <taxonRankValue>Apiales</taxonRankValue>
+              </taxonomicClassification>
+              <taxonomicClassification>
+
+              <taxonomicClassification>
+                  <taxonRankName>family</taxonRankName>
+                <taxonRankValue>Asparagaceae</taxonRankValue>
+              </taxonomicClassification>
+              <taxonomicClassification>
+
+                  <taxonRankName>genus</taxonRankName>
+                <taxonRankValue>Botrychium</taxonRankValue>
+              </taxonomicClassification>
+
+			 */
+
+			writer.write("\n\nXML code:\n");			
+			list = new ArrayList<String>(kingdom);
+			Collections.sort(list);
+			iter = list.iterator();	     
+			while(iter.hasNext()) {
+				writer.write("<taxonomicClassification>\n<taxonRankName>kingdom</taxonRankName>\n <taxonRankValue>" + (String) iter.next() + "</taxonRankValue>\n</taxonomicClassification>\n");
+			}
+
+			list = new ArrayList<String>(phylum);
+			Collections.sort(list);
+			iter = list.iterator();	     
+			while(iter.hasNext()) {
+				writer.write("<taxonomicClassification>\n<taxonRankName>phylum</taxonRankName>\n <taxonRankValue>" + (String) iter.next() + "</taxonRankValue>\n</taxonomicClassification>\n");
+			}
+
+			list = new ArrayList<String>(Class);
+			Collections.sort(list);
+			iter = list.iterator();	     
+			while(iter.hasNext()) {
+				writer.write("<taxonomicClassification>\n<taxonRankName>class</taxonRankName>\n <taxonRankValue>" + (String) iter.next() + "</taxonRankValue>\n</taxonomicClassification>\n");
+			}
+
+			list = new ArrayList<String>(order);
+			Collections.sort(list);
+			iter = list.iterator();	     
+			while(iter.hasNext()) {
+				writer.write("<taxonomicClassification>\n<taxonRankName>order</taxonRankName>\n <taxonRankValue>" + (String) iter.next() + "</taxonRankValue>\n</taxonomicClassification>\n");
+			}
+
+			list = new ArrayList<String>(family);
+			Collections.sort(list);
+			iter = list.iterator();	     
+			while(iter.hasNext()) {
+				writer.write("<taxonomicClassification>\n<taxonRankName>family</taxonRankName>\n <taxonRankValue>" + (String) iter.next() + "</taxonRankValue>\n</taxonomicClassification>\n");
+			}
+
+
+			list = new ArrayList<String>(genus);
+			Collections.sort(list);
+			iter = list.iterator();	     
+			while(iter.hasNext()) {
+				writer.write("<taxonomicClassification>\n<taxonRankName>genus</taxonRankName>\n <taxonRankValue>" + (String) iter.next() + "</taxonRankValue>\n</taxonomicClassification>\n");
+			}
+
 			writer.close();
 
 		} catch (IOException ex) {
@@ -314,10 +401,10 @@ public class MetadataExtractorSeqLoad {
 	}
 
 	private static void attributeHeaders(String[] headers) {
-			
+
 		//Match headers to numbers
 		for (int id = 0; id < headers.length; id++) {
-			
+
 			switch(headers[id]) {
 
 			case "decimalLatitude":
@@ -327,59 +414,59 @@ public class MetadataExtractorSeqLoad {
 			case "decimalLongitude":
 				longID = id;
 				continue;
-				
+
 			case "acceptedNameUsage":
 				acceptedNameUsageID = id;
 				continue;
-				
+
 			case "kingdom":
 				kingdomID = id;
 				continue;
-				
+
 			case "phylum":
 				phylumID = id;
 				continue;
-				
+
 			case "class":
 				classID = id;
 				continue;
-				
+
 			case "order":
 				orderID = id;
 				continue;
-				
+
 			case "family":
 				familyID = id;
 				continue;
-				
+
 			case "genus":
 				genusID = id;
 				continue;
-				
+
 			case "specificEpithet":
 				specificEpithetID = id;
 				continue;
-				
+
 			case "infraspecificEpithet":
 				infraspecificEpithetID = id;
 				continue;
-				
+
 			case "taxonRank":
 				taxonRankID = id;
 				continue;
-				
+
 			case "country":
 				countryID = id;
 				continue;
-				
+
 			case "eventDate":
 				dateID = id;
 				continue;
-				
+
 			case "scientificName":
 				scientificNameID =id;
 				continue;
-				
+
 			default:
 				continue;
 
