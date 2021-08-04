@@ -86,7 +86,7 @@ public class SpeciesExtractorSeqLoad {
 
 				//Writes header line
 				String[] header = {"scientificName","acceptedNameUsage","kingdom","phylum","class","order","family","genus",
-						"specificEpithet","infraspecificEpithet","taxonRank","scientificNameAuthorship","confidence","matchType","occurenceID"};
+						"specificEpithet","infraspecificEpithet","taxonRank","scientificNameAuthorship","confidence","matchType","occurrenceID"};
 				writer.writeNext(header);
 
 
