@@ -147,9 +147,11 @@ public class MetadataExtractorSeqLoad {
 					countryCount++;
 				}
 
-				if(dateID > -1) {
+				if(dateID > -1 && occ[dateID].length() > 3) {
 					//Checks for earliest date
-					for (int i = 0;i <10 ; i++) {				
+					
+					for (int i = 0;i <10 ; i++) {		
+
 						if (occ[dateID].substring(0,4).compareTo(oldestDate[i]) < 0) {
 							//pushes all others forward
 							for (int a = 8; a>=i; a--) {
