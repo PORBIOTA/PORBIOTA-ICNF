@@ -135,7 +135,7 @@ for i in range(1,len(inpdata)):
         if m.group(2)=='--':
             mnt=0
         else:
-            mnt=int(m.group(1))
+            mnt=int(m.group(2))
     if has_date:
         if has_time:
             n=datetime.datetime(yea,mon,day,hou,mnt,0)
