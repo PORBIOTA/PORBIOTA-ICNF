@@ -101,7 +101,7 @@ with open(inpfilename, 'r') as csvfile:
     reader = csv.reader(csvfile, dialect)
     inpdata=[row for row in reader]
 #%%
-inpdata[0].extend(["eventDate"])
+inpdata[0].extend(["eventDate","eventDate","eventTime"])
 
 for i in range(1,len(inpdata)):
     c_row=inpdata[i]
@@ -145,14 +145,21 @@ for i in range(1,len(inpdata)):
                 timezone=False
             if timezone:
                 res=timezone.localize(n).replace(microsecond=0).isoformat()
+                restime=timezone.localize(n).replace(microsecond=0).strftime('%H:%M%z')
             else:
                 res=n.isoformat()
+                restime=n.strftime('%H:%M')
+            resdate=n.date().isoformat()
         else:
              n=datetime.date(yea,mon,day)
              res=n.isoformat()
+             resdate=res
+             restime=None
     else:
         res=None
-    c_row.extend([res])
+        resdate=None
+        restime=None
+    c_row.extend([res,resdate,restime])
     if i%80==0:
         print()
 

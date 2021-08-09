@@ -1,3 +1,4 @@
+
 Here are my scripts
 
 ## reverse_georref_ex.py
@@ -12,7 +13,8 @@ Takes one or two parameters:
 
 Example:
 ```python3 reverse_georref_ex.py ex_input.csv ex_output.csv```
-The program prints information about the input and output files and a ‘:’ on each query performed, ‘+’ when the cache file is updated and a ‘.’ for each coordinate processed from the cache. The cache file is in JSON format and is loaded from the current directory or created if it does not exist.
+
+The program prints information about the input and output files and a ‘`:`’ on each query performed, ‘`+`’ when the cache file is updated and a ‘`.`’ for each coordinate processed from the cache. The cache file is in JSON format and is loaded from the current directory or created if it does not exist.
 
 
 ## coltojson.py
@@ -44,4 +46,4 @@ Input columns:
  4. Decimal Latitude
  5. Decimal Longitude
 
-Input columns are copied to output adding the ISO datetime as last column.
+Input columns are copied to output adding the ISO datetime, date and time (with or without time offset) as last 3 columns.
