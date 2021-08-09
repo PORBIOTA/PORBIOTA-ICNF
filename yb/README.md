@@ -1,4 +1,4 @@
-Here will be my scripts
+Here are my scripts
 
 ## reverse_georref_ex.py
 Commandline tool to create reverse georeferencing data as defined in DwC from decimal coordinates using openstreetpam API, leveraging local cache to avoid unnecessary queries, and performs no more than one query per second. It takes as input CSV file with 3 columns (the header with column names must exist but is ignored, the number and order of the columns is important):
@@ -30,3 +30,18 @@ Example:
 - list of columns numbers to be used for key, numbers only, coma separated, no spaces (default “1”);
 - input csv table file name (default “table.csv”);
 - ouput csv table file name (default “table_unpivot.csv”);
+## timecoord_to_iso.py
+Re-formats date and time columns to DwC ISO format optionally adding correct timezone from coordinates if available.
+
+Example:
+```python3 timecoord_to_iso.py ex_timecoord_inp.csv ex_timecoord_out.csv```
+
+Input columns:
+
+ 1. Index (integer)
+ 2. Verbatim Date (`YYYY.MM.DD` or `DD.MM.YYYY`, separator is any of `.`, `/`, `-` or *`space`* )
+ 3. Time in euring format (`HHmm` or `HH--`)
+ 4. Decimal Latitude
+ 5. Decimal Longitude
+
+Input columns are copied to output adding the ISO datetime as last column.
