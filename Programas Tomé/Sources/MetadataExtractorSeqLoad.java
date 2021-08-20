@@ -107,7 +107,7 @@ public class MetadataExtractorSeqLoad {
 
 
 				///Counts Species and etc
-				if (!species.contains(occ[acceptedNameUsageID]) && occ[acceptedNameUsageID].length() != 0) {				
+				if (!species.contains(occ[acceptedNameUsageID]) && occ[acceptedNameUsageID].length() != 0 && !occ[taxonRankID].equalsIgnoreCase("GENUS")) {				
 					species.add(occ[acceptedNameUsageID]);
 					speciesCount++;
 				}
