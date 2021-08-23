@@ -242,18 +242,18 @@ public class SpeciesExtractorSeqLoad {
 					try {	
 						if ("subspecies".equalsIgnoreCase((String) currentJSON[apiCall].get("rank"))) {
 							if (scientificNameAuthorshipCurrent.contains("var. ")) {					
-								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf("var. ")+5)+1);
+								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf("var. ")+5)).trim();
 							} else if (scientificNameAuthorshipCurrent.contains("subsp. ")) {
-								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf("subsp. ")+7)+1);
+								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf("subsp. ")+7)).trim();
 							} else {
 								//gets the string after the third space (" ")
-								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf(" ",scientificNameAuthorshipCurrent.indexOf(" ")+1)+1)+1);						}
+								scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf(" ",scientificNameAuthorshipCurrent.indexOf(" ")+1)+1)).trim();						}
 						} else if ("species".equalsIgnoreCase((String) currentJSON[apiCall].get("rank"))){
 							//gets the string after the second  space (" ")
-							scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf(" ")+1)+1);
+							scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ", scientificNameAuthorshipCurrent.indexOf(" ")+1)).trim();
 						} else if ("genus".equalsIgnoreCase((String) currentJSON[apiCall].get("rank"))){
 							//gets the string after the the first space (" ")
-							scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ")+1);
+							scientificNameAuthorshipCurrent = scientificNameAuthorshipCurrent.substring(scientificNameAuthorshipCurrent.indexOf(" ")).trim();
 						}
 					} catch (StringIndexOutOfBoundsException e) {
 						scientificNameAuthorshipCurrent = "";
@@ -272,7 +272,7 @@ public class SpeciesExtractorSeqLoad {
 					String speciesInfraEpithet = "";
 					if(speciesName.contains(" ")){
 						if (speciesName.indexOf(' ') != speciesName.lastIndexOf(' ')) {
-							speciesEpithet = ((String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.lastIndexOf(' '))).replace(" subsp.", "").replace(" var.", "");
+							speciesEpithet = ((String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.lastIndexOf(' '))).replace(" subsp.", "").replace(" var.", "").replace(" ssp.","");
 							speciesInfraEpithet = (String) speciesName.subSequence(speciesName.lastIndexOf(' ')+1,speciesName.length());
 						} else {
 							speciesEpithet = (String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.length());
