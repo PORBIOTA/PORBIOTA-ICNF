@@ -386,7 +386,7 @@ public class SpeciesExtractorSeqLoad {
 
 					///WRITER
 
-					String[] line = 	{occ[scientificNameID],
+					String[] line = 	{occ[scientificNameID].replace(" spp.", ""),
 							acceptedNameUsageCurrent,
 							kingdomCurrent,
 							phylumCurrent,
