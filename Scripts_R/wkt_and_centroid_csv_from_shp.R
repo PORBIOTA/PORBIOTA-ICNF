@@ -26,14 +26,14 @@ library("spatstat")
 linesLimit = 20000
 
 #Set the path to shapefile
-path = "FullPathToFile ex: C:/teste.shp" 
+path = "D:\\Porbiota\\Datasets\\Art12_birds_distribution\\pt_art12_aves_distribuicao_centroids_intersected\\pt_art12_aves_distribuicao_centroids_intersected.shp" 
 encoding = 'CP1252' #It is probably the correct one given the datasets until now, might change though.
  
 ###Set output FOLDER
-output_path = "FullPathToOutputFolder ex: C:/teste/"
+output_path = "C:\\testerun\\"
  
 #######Put complete CAOP2020 shape in WGS84 #############
-CAOPpath = "FullPathToFile ex: C:/CAOP2020_WGS84.shp"
+CAOPpath = "D:\\Porbiota\\Datasets\\Helper_Files\\CAOP2020_WGS84.shp"
 #Available here: https://drive.google.com/file/d/1op8QLvgU7e0kwfTmvraKLdQsHCx_PAHP
 
 
@@ -99,6 +99,7 @@ if (i*linesLimit > numberOfRows) {
 } else {
 	shape = shape[c(((i-1)*linesLimit+1):(i*linesLimit)),]
 }
+gc()
 
 ###Gets WKT
 if(st_geometry_type(shape, by_geometry = TRUE)[1] != "POINT"){
@@ -167,8 +168,17 @@ withWGS84<- cbind(withWGS84,shape$Distrito)
 colnames(withWGS84)[ncol(withWGS84)] <- "stateProvince"
 withWGS84<- cbind(withWGS84,shape$Concelho)
 colnames(withWGS84)[ncol(withWGS84)] <- "municipality"
-withWGS84<- cbind(withWGS84,shape$Des_Simpli)
+withWGS84 <- cbind(withWGS84, ifelse(is.na(shape$Des_Simpli), shape$Freguesia, shape$Des_Simpli))
 colnames(withWGS84)[ncol(withWGS84)] <- "locality"
+
+
+#withWGS84<- cbind(withWGS84,shape$Des_Simpli)
+#colnames(withWGS84)[ncol(withWGS84)] <- "locality"
+#withWGS84<- cbind(withWGS84,shape$Freguesia)
+#colnames(withWGS84)[ncol(withWGS84)] <- "localityIlhas"
+
+
+
 gc()
 
 ###Para não ir a baixo com pontos
@@ -211,7 +221,7 @@ if (.hasSlot(as_Spatial(shape),"polygons") || .hasSlot(as_Spatial(shape),"lines"
 	} else {
 		shape = shape[c(((i-1)*linesLimit+1):(i*linesLimit)),]
 	}
-
+	gc()
 	 shape=shape %>%
 	  st_transform(4326)
 	  gc()
