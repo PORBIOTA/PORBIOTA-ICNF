@@ -171,7 +171,7 @@ withWGS84<- cbind(withWGS84,shape$Des_Simpli)
 colnames(withWGS84)[ncol(withWGS84)] <- "locality"
 gc()
 
-###Para não ir a baixo com pontos
+###Para nÃ£o ir a baixo com pontos
 	shape=st_read(path)
 if (.hasSlot(as_Spatial(shape),"polygons") || .hasSlot(as_Spatial(shape),"lines")  ) {
 
