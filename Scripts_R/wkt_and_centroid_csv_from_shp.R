@@ -26,14 +26,14 @@ library("spatstat")
 linesLimit = 20000
 
 #Set the path to shapefile
-path = "D:\\Porbiota\\Datasets\\Art12_birds_distribution\\pt_art12_aves_distribuicao_centroids_intersected\\pt_art12_aves_distribuicao_centroids_intersected.shp" 
+path = "FullPathToFile ex: C:/teste.shp" 
 encoding = 'CP1252' #It is probably the correct one given the datasets until now, might change though.
  
 ###Set output FOLDER
-output_path = "C:\\testerun\\"
+output_path = "FullPathToOutputFolder ex: C:/teste/"
  
 #######Put complete CAOP2020 shape in WGS84 #############
-CAOPpath = "D:\\Porbiota\\Datasets\\Helper_Files\\CAOP2020_WGS84.shp"
+CAOPpath = "FullPathToFile ex: C:/CAOP2020_WGS84.shp"
 #Available here: https://drive.google.com/file/d/1op8QLvgU7e0kwfTmvraKLdQsHCx_PAHP
 
 
