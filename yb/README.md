@@ -47,3 +47,7 @@ Input columns:
  5. Decimal Longitude
 
 Input columns are copied to output adding the ISO datetime, date and time (with or without time offset) as last 3 columns.
+
+## github svn enable tocken
+creates event-occurrence-resourcerelationship from ocupprici and ocupsegund
+
