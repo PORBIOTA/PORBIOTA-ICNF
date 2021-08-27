@@ -109,8 +109,7 @@ rels.append(['idx','eventID','resourceID','relatedResourceID','relationshipOfRes
 #print(rels)
 #sys.exit()
 #%%
-for ri in range(1,len(inpdata)-1):
- if ri in (46,47):
+for ri in range(1,len(inpdata)):
   r=inpdata[ri]
   outrow=[]
   outoccpri=[]
