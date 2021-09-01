@@ -54,7 +54,7 @@ copyToOccurence=('basisOfRecord',
   'license','institutionCode','institutionID',
   'collectionCode','datasetName',
   'decimalLatitude','decimalLongitude',
-  'country','countryCode','stateProvince','municipalilty','locality')
+  'country','countryCode','stateProvince','municipality','locality')
 #%%
 colidx=False
 colpri=False
