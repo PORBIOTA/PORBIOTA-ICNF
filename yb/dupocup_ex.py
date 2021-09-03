@@ -30,6 +30,26 @@ else:
     relfilename='%s_rel.csv'%basename
 print("Using for resourcerelationship '%s'"%relfilename)
 
+scimap=False
+if len(sys.argv) > 5:
+    scifilename=sys.argv[5]
+    print("Using scientific names '%s' mapping"%scifilename)
+    with open(scifilename, 'r') as csvfile:
+        dialect = csv.Sniffer().sniff(csvfile.read(10240))
+        print("Detected csv input: separator:%s, quote:%s, eol:%s"%(repr(dialect.delimiter),repr(dialect.quotechar),repr(dialect.lineterminator)))
+        csvfile.seek(0)
+        reader = csv.reader(csvfile, dialect)
+        header=True
+        scimap=[]
+        for row in reader:
+            if header:
+                header=False
+                print("column ocupname:%s, scientificName:%s"%(row[0],row[1]))
+            else:
+                if row[1] and row[1].strip():
+                    scimap.append(row[0])
+    print("Using scientific names mapping %d ocupnames"%len(scimap))
+
 if os.path.exists(outfilename):
     print("event file '%s' exists. Quitting."%outfilename)
     sys.exit()
@@ -52,9 +72,7 @@ with open(inpfilename, 'r') as csvfile:
 #%%
 copyToOccurence=('basisOfRecord',
   'license','institutionCode','institutionID',
-  'collectionCode','datasetName',
-  'decimalLatitude','decimalLongitude',
-  'country','countryCode','stateProvince','municipality','locality')
+  'collectionCode','datasetName')
 #%%
 colidx=False
 colpri=False
@@ -114,8 +132,12 @@ for ri in range(1,len(inpdata)):
   outrow=[]
   outoccpri=[]
   outoccsec=[]
-  hassec=r[colsec] and r[colsec].strip()
-  haspri=r[colpri] and r[colpri].strip()
+  if scimap is False:
+    hassec=r[colsec] and r[colsec].strip()
+    haspri=r[colpri] and r[colpri].strip()
+  else:
+    hassec=(r[colsec].strip() in scimap)
+    haspri=(r[colpri].strip() in scimap)
   if haspri and hassec and (r[colpri].strip()==r[colsec].strip()):
       hassec=False # we shal not repeat lines where ocuppri and ocupsec are equal
   occidxbase=str(ri) if colidx is False else r[colidx]
@@ -124,7 +146,7 @@ for ri in range(1,len(inpdata)):
   #create eventID UUID if column does not exist or empty otherwize copy
   outoccpri.append('Event')
   outoccsec.append('Event')
-  evtid=str(uuid.uuid4()) if colevID is False else (str(uuid.uuid4()) if r[colevID] and r[colevID].strip() else str(uuid.uuid4()))
+  evtid=str(uuid.uuid4()) if colevID is False else (r[colevID] if r[colevID] and r[colevID].strip() else str(uuid.uuid4()))
   outoccpri.append(evtid)
   outoccsec.append(evtid)
   for i in range(len(inpdata[0])):
@@ -155,8 +177,12 @@ for ri in range(1,len(inpdata)):
   if coloccID is False: #there was no occurenceID column in the input. Append new UUID for both
     outoccpri.append(str(uuid.uuid4()))
     outoccsec.append(str(uuid.uuid4()))
-  evts.append(outrow)
-  if haspri and hassec:
+  evtwasoutputed = False
+  if scimap is False or (haspri or hassec):
+      evts.append(outrow)
+      evtwasoutputed = True
+  if evtwasoutputed:
+   if haspri and hassec:
     occs.append(outoccpri)
     occs.append(outoccsec)
     refrow=[outoccpri[0],evtid,
@@ -169,11 +195,11 @@ for ri in range(1,len(inpdata)):
             outoccpri[coloccOccurenceID],
             'is secondary of']
     rels.append(refrow)  
-  elif haspri and not hassec:
+   elif haspri and not hassec:
     occs.append(outoccpri)
-  elif not haspri and hassec:
+   elif not haspri and hassec:
     occs.append(outoccsec)
-  elif not (haspri or hassec):
+   elif not (haspri or hassec):
     occs.append(outoccpri) #output primary even with empty ocuppri
 #%%
 print('Done. %d lines processed, %d event lines;'%(len(inpdata)-1,len(evts)-1))
