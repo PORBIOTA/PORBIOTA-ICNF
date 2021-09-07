@@ -1,10 +1,12 @@
-package csvEditorSequentialLoad;
+package helpers;
 
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -15,13 +17,20 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Scanner;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.mapdb.DB;
+import org.mapdb.DBException;
+import org.mapdb.DBMaker;
+import org.mapdb.HTreeMap;
+import org.mapdb.Serializer;
 
 /**
  * 
@@ -35,29 +44,37 @@ import org.json.simple.parser.ParseException;
 
 public class LocationExtractorSeqLoad {
 
-	private static int latID=0;
-	private static int longID=0;			 
-	private static int scientificNameID=0;
-	private static int acceptedNameUsageID=0;
-	private static int kingdomID=0;				
-	private static int phylumID=0;
-	private static int classID=0;				
-	private static int orderID=0;				
-	private static int familyID=0;				
-	private static int genusID=0;
-	private static int specificEpithetID=0;				
-	private static int infraspecificEpithetID=0;				
-	private static int taxonRankID=0;			
-	private static int countryID=0;					
-	private static int dateID=0;	
+	private  int latID=0;
+	private  int longID=0;			 
+	private  int scientificNameID=0;
+	private  int acceptedNameUsageID=0;
+	private  int kingdomID=0;				
+	private  int phylumID=0;
+	private  int classID=0;				
+	private  int orderID=0;				
+	private  int familyID=0;				
+	private  int genusID=0;
+	private  int specificEpithetID=0;				
+	private  int infraspecificEpithetID=0;				
+	private  int taxonRankID=0;			
+	private  int countryID=0;					
+	private  int dateID=0;	
 
-	public static void main(String[] args) throws IOException {
+	public LocationExtractorSeqLoad() {
+
+	}
+
+	public void extract(String inputPath, String outputPath,DB db, HTreeMap<String, JSONObject>  map) throws IOException {
 
 
 		//Reads the input file
 		CSVReader csvReader;
-		String originalTablePath = args[0];
-		
+		String originalTablePath = inputPath;
+		DecimalFormat df = new DecimalFormat("#.0000000");
+
+
+
+
 
 		try {
 			Reader originalReader = Files.newBufferedReader(Paths.get(originalTablePath), StandardCharsets.UTF_8 );
@@ -75,38 +92,38 @@ public class LocationExtractorSeqLoad {
 			int counter = 1;
 
 			//Creates a hashmap that stores coordinates already fetched
-			HashMap<String, JSONObject> occurenceLocations = new HashMap<String, JSONObject>();
-
 			JSONObject obj = null;
 			JSONParser parser = null;
 
 
 			//Opens writer
-			String fileName = args[1];
+			String fileName = outputPath;
 			Path myPath = Paths.get(fileName);
 			try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(myPath.toString()), "UTF-8"))) {
 
-				
+
 				//Writes header line
-				String[] line = {"decimalLatitude","decimalLongitude","hamlet","borough","village","city_district","town","city","county","municipality","province","state","country","countryCode"};
+				String[] line = {"decimalLatitude","decimalLongitude","hamlet","borough","village","city_district","town","city","county","municipality","province","state","archipelago","country","countryCode","DwC_locality","DwC_municipality","DwC_county","DwC_stateProvince","DwC_islandGroup"};
 				writer.writeNext(line);
 
 				while ((occ = csvReader.readNext()) != null) {
-					
+					if(occ.length <2) {
+						break;
+					}
 					//Zero outs line to avoid conflicts
 					line = new String[line.length];
 
 					//Shows progress
-					System.out.println("Working on line " + counter);
 					counter++;
 
 					///Gets the latitude and longitude
-					String lat = occ[latID];
-					String lon = occ[longID];
+
+					String lat = df.format(Double.parseDouble(occ[latID]));
+					String lon = df.format(Double.parseDouble(occ[longID]));
 					String latlon = lat + lon;
 
 					//If the set of coordinates was not previously fetched from the API, it does so
-					if(!occurenceLocations.containsKey(latlon)) {
+					if(!map.containsKey(latlon)) {
 						String loc = "https://nominatim.openstreetmap.org/reverse?lat="+URLEncoder.encode(lat, "UTF-8")+"&lon="+URLEncoder.encode(lon, "UTF-8")+"&format=json&accept-language=en";
 						URL url = new URL(loc);
 
@@ -128,13 +145,18 @@ public class LocationExtractorSeqLoad {
 						} 	
 
 						//Add the JSON object to the hashmap with the coordinates as key 
-						occurenceLocations.put(latlon, (JSONObject) obj.clone());
+						map.put(latlon, obj);
+
 
 					}
 
 					//Fetches the JSON information and attributes it to the correct columns
-					JSONObject address = (JSONObject) occurenceLocations.get(latlon).get("address");
-				
+
+
+					JSONObject address = (JSONObject) map.get(latlon).get("address");
+
+
+
 					line[0] = lat;
 					line[1] = lon;
 					String countryCode;
@@ -149,43 +171,137 @@ public class LocationExtractorSeqLoad {
 						line[9] = (String) Optional.ofNullable(address.get("municipality")).orElse("");
 						line[10] = (String) Optional.ofNullable(address.get("province")).orElse("");
 						line[11] = (String) Optional.ofNullable(address.get("state")).orElse("");
-						line[12] = (String) Optional.ofNullable(address.get("country")).orElse("");
+						line[12] = (String) Optional.ofNullable(address.get("archipelago")).orElse("");
+						line[13] = (String) Optional.ofNullable(address.get("country")).orElse("");
 						countryCode = (String) Optional.ofNullable(address.get("country_code")).orElse("");
-						line[13] = countryCode.toUpperCase();
+						line[14] = countryCode.toUpperCase();
+						
+						
+						//Fills DwC terms depending on the country
+						switch (line[13]) {
+						case "Portugal":
+							
+							//municipality = municipality, then city, then town
+							if (!line[9].contentEquals("")) {
+								line[16] = line[9];
+							} else if (!line[7].contentEquals("")){
+								line[16] = line[7];
+							} else {
+								line[16] = line[6];
+							}		
+							
+							//locality = hamlet, then village, then city_district, then town, then city
+							if (!line[2].contentEquals("")) {
+								line[15] = line[2];
+							} else if (!line[4].contentEquals("")){
+								line[15] = line[4];									
+							} else if (!line[6].contentEquals("")){
+								line[15] = line[6];
+							} else if (!line[5].contentEquals("")){
+								line[15] = line[5];
+							}  else {
+								line[15] = line[7];
+							}							
+
+							//islandGroup = Archipelago
+							line[19] = line[12]; 		
+
+							//stateProvince = county
+							line[18] = line[8];								
+
+								
+							
+							
+							break;
+						case "Spain":
+							//stateProvince = state
+							line[18] = line[11];
+							
+							//county = county or province
+							if (!line[8].contentEquals("")) {
+								line[17] = line[8];
+							} else {
+								line[17] = line[10];
+							}
+							
+							//municipality = municipality, then city, then town, then village
+							if (!line[9].contentEquals("")) {
+								line[16] = line[9];
+							} else if (!line[7].contentEquals("")){
+								line[16] = line[7];
+							} else if (!line[6].contentEquals("")){
+								line[16] = line[6];
+							} else {
+								line[16] = line[4];
+							}
+								
+							//locality = hamlet, then borough, then village, then town, then city
+							if (!line[2].contentEquals("")) {
+								line[15] = line[2];
+							} else if (!line[3].contentEquals("")){
+								line[15] = line[3];
+							} else if (!line[4].contentEquals("")){
+								line[15] = line[4];
+							} else if (!line[6].contentEquals("")){
+								line[15] = line[6];
+							} else {
+								line[15] = line[7];
+							}
+							
+							//islandGroup = Archipelago
+							line[18] = line[12]; 	
+							
+							break;
+						default:
+							break;
+						}
+
 					}
+
 					
+
+					
+
 					writer.writeNext(line);
-					
+
 					if (counter%100 == 0) {
+						//persist changes on disk
+						db.commit();
 						writer.flush();
+						System.out.println("Working on line " + counter);
 					}
 				}
-				
-				//No need to close as CSVWriter auto-closes
+
+
+				//close to protect from data corruption
+				db.commit();
+				//db.close();
+
+
 				System.out.println("Complete!");
 
 
 			} catch (IOException e) {			
 				System.out.println("Output file is not accessible!");
-				e.printStackTrace();
-				System.exit(1);
+				throw e;
+			} finally {
+				csvReader.close();
 			}
 			///Counts Species and etc
 		} catch (IOException e) {			
 			System.out.println("There is no input file!");
-			System.exit(1);
+			throw e;
 		}
 		catch (RuntimeException e) {
 			System.out.println("Either the .csv is not in UTF-8 or its delimiters are not commas(,)\n\n");			
-			e.printStackTrace();
-			System.exit(1);
+			throw e;
 		} catch (CsvValidationException e1) {
 			e1.printStackTrace();
 		}
 
 	}
 
-	private static void attributeHeaders(String[] headers) {
+	private void attributeHeaders(String[] headers) {
 
 		//Match headers to numbers
 		for (int id = 0; id < headers.length; id++) {
