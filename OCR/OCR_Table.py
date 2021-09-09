@@ -12,6 +12,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tessera
 
 #read your file
 file=r'G:/Porbiota/OCR_entomologia-20210908T161645Z-001/OCR_entomologia/177_1997/max_treatment_Page_3_lowres.jpg'
+outputfile=r'C:/output.csv'
 img = cv2.imread(file,0)
 img.shape
 
@@ -195,5 +196,5 @@ data = dataframe.style.set_properties(align="left")
 
 #Converting it in a excel-file
 #data.to_excel("C:/output.xlsx")
-dataframe.to_csv("C:/output.csv")
+dataframe.to_csv(outputfile)
 
