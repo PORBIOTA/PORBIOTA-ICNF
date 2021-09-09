@@ -11,7 +11,7 @@ import pytesseract
 
 #Parameters
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
-tesseractConfig = '--psm 3 --oem 1 --l eng'
+tesseractConfig = '--psm 3 --oem 1 -l eng'
 outputFile=r'C:/output.csv'
 file=r'G:/Porbiota/OCR_entomologia-20210908T161645Z-001/OCR_entomologia/177_1997/max_treatment_Page_3.jpg'
 
@@ -110,6 +110,7 @@ box = []
 for c in contours:
     x, y, w, h = cv2.boundingRect(c)
     if (w<1000 and h<500):
+        #image = cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
         image = cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
         box.append([x,y,w,h])
         
@@ -186,12 +187,13 @@ for i in range(len(finalboxes)):
                 erosion = cv2.erode(dilation, kernel,iterations=1)
 
              #   erosion = dilation
-            #   imgplot = plt.imshow(erosion)
-            #   plt.show()
+               # erosion = cv2.cvtColor(erosion, cv2.COLOR_BGR2RGB)
+              #  imgplot = plt.imshow(RGB_img)
+              #  plt.show()
                 
-                out = pytesseract.image_to_string(erosion)
-                if(len(out)==0):
-                    out = pytesseract.image_to_string(erosion, config=tesseractConfig)
+               # out = pytesseract.image_to_string(erosion)
+               # if(len(out)==0):
+                out = pytesseract.image_to_string(erosion, config=tesseractConfig)
                 inner = inner +" "+ out
             outer.append(inner)
 
