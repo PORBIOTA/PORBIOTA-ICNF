@@ -11,7 +11,7 @@ import pytesseract
 
 #Parameters
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
-tesseractConfig = '--psm 3 --oem 1 -l eng'
+tesseractConfig = '--psm 4 --oem 1 -l eng'
 outputFile=r'C:/output.csv'
 file=r'G:/Porbiota/OCR_entomologia-20210908T161645Z-001/OCR_entomologia/177_1997/max_treatment_Page_3.jpg'
 
