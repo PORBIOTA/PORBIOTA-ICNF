@@ -8,13 +8,14 @@ try:
 except ImportError:
     import Image
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
-#Configuration tesseract
+#Parameters
+pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 tesseractConfig = '--psm 3 --oem 1 --l eng'
+outputFile=r'C:/output.csv'
+file=r'G:/Porbiota/OCR_entomologia-20210908T161645Z-001/OCR_entomologia/177_1997/max_treatment_Page_3.jpg'
 
 #read your file
-file=r'G:/Porbiota/OCR_entomologia-20210908T161645Z-001/OCR_entomologia/177_1997/max_treatment_Page_3.jpg'
 img = cv2.imread(file,0)
 img.shape
 
@@ -184,7 +185,7 @@ for i in range(len(finalboxes)):
                 dilation = cv2.dilate(resizing, kernel,iterations=1)
                 erosion = cv2.erode(dilation, kernel,iterations=1)
 
-            #   erosion = dilation
+             #   erosion = dilation
             #   imgplot = plt.imshow(erosion)
             #   plt.show()
                 
@@ -202,5 +203,5 @@ data = dataframe.style.set_properties(align="left")
 
 #Converting it in a excel-file
 #data.to_excel("C:/output.xlsx")
-dataframe.to_csv("C:/output.csv")
+dataframe.to_csv(outputFile)
 
