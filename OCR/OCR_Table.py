@@ -10,9 +10,11 @@ except ImportError:
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
+#Configuration tesseract
+tesseractConfig = '--psm 3 --oem 1 --l eng'
+
 #read your file
-file=r'G:/Porbiota/OCR_entomologia-20210908T161645Z-001/OCR_entomologia/177_1997/max_treatment_Page_3_lowres.jpg'
-outputfile=r'C:/output.csv'
+file=r'G:/Porbiota/OCR_entomologia-20210908T161645Z-001/OCR_entomologia/177_1997/max_treatment_Page_3.jpg'
 img = cv2.imread(file,0)
 img.shape
 
@@ -24,7 +26,7 @@ img_bin = 255-img_bin
 #cv2.imwrite('/Users/YOURPATH/cv_inverted.png',img_bin)
 
 #Plotting the image to see the output
-plotting = plt.imshow(img_bin,cmap='gray')
+#plotting = plt.imshow(img_bin,cmap='gray')
 #plt.show()
 
 # Length(width) of kernel as 100th of total width
@@ -53,6 +55,7 @@ horizontal_lines = cv2.dilate(image_2, hor_kernel, iterations=3)
 
 # Combine horizontal and vertical lines in a new third image, with both having same weight.
 img_vh = cv2.addWeighted(vertical_lines, 0.5, horizontal_lines, 0.5, 0.0)
+#img_vh = cv2.addWeighted(vertical_lines, 5, horizontal_lines, 5, 0.0)
 
 #Eroding and thesholding the image
 img_vh = cv2.erode(~img_vh, kernel, iterations=2)
@@ -181,10 +184,13 @@ for i in range(len(finalboxes)):
                 dilation = cv2.dilate(resizing, kernel,iterations=1)
                 erosion = cv2.erode(dilation, kernel,iterations=1)
 
+            #   erosion = dilation
+            #   imgplot = plt.imshow(erosion)
+            #   plt.show()
                 
                 out = pytesseract.image_to_string(erosion)
                 if(len(out)==0):
-                    out = pytesseract.image_to_string(erosion, config='--psm 3')
+                    out = pytesseract.image_to_string(erosion, config=tesseractConfig)
                 inner = inner +" "+ out
             outer.append(inner)
 
@@ -196,5 +202,5 @@ data = dataframe.style.set_properties(align="left")
 
 #Converting it in a excel-file
 #data.to_excel("C:/output.xlsx")
-dataframe.to_csv(outputfile)
+dataframe.to_csv("C:/output.csv")
 
