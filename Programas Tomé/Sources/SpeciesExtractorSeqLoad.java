@@ -245,19 +245,27 @@ public class SpeciesExtractorSeqLoad {
 					} else {
 						speciesGenus = speciesName;
 					}
+					
 
 					//Specific and Infra Epithet
 					String speciesEpithet = "";
 					String speciesInfraEpithet = "";
-					if(speciesName.contains(" ")){
-						if (speciesName.indexOf(' ') != speciesName.lastIndexOf(' ')) {
-							speciesEpithet = ((String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.lastIndexOf(' '))).replace(" subsp.", "").replace(" var.", "").replace(" ssp.","");
-							speciesInfraEpithet = (String) speciesName.subSequence(speciesName.lastIndexOf(' ')+1,speciesName.length());
-						} else {
-							speciesEpithet = (String) speciesName.subSequence(speciesName.indexOf(' ')+1, speciesName.length());
-							speciesInfraEpithet = "";
+					if(speciesName.trim().contains(" ")){						
+						String[] speciesExploded = speciesName.trim().split(" ");
+						speciesEpithet = speciesExploded[1];
+						try {
+						if (((String) speciesJSONs.get(occ[scientificNameID])[0].get("rank")).equalsIgnoreCase("SUBSPECIES")) {
+							if (speciesExploded[2].contentEquals("var.") || speciesExploded[2].contentEquals("subsp.")) {
+								speciesInfraEpithet = speciesExploded[3];
+							} else {
+								speciesInfraEpithet = speciesExploded[2];
+							}
+						}
+						} catch (NullPointerException e) {
+							
 						}
 					}
+					
 
 					//Define scientific name
 					specificEpithetCurrent = speciesEpithet;
@@ -348,7 +356,7 @@ public class SpeciesExtractorSeqLoad {
 						confidenceCurrent = ((long) speciesJSONs.get(occ[scientificNameID])[0].get("confidence"));
 
 						try {
-							taxonRankCurrent = ((String) speciesJSONs.get(occ[scientificNameID])[0].get("rank"));
+							taxonRankCurrent = ((String) speciesJSONs.get(occ[scientificNameID])[apiCall].get("rank"));
 						} catch (NullPointerException e) {
 						}
 
@@ -403,15 +411,22 @@ public class SpeciesExtractorSeqLoad {
 							occurenceIDCurrent};
 
 					writer.writeNext(line);
+					
+					if (counter%100 == 0) {
+						//persist changes on disk
+						//	db.commit(); ////FOR WEB VERSION
+						writer.flush();
+					}
 
 				}
 				//No need to close as CSVWriter auto-closes
 				System.out.println("Complete!");
+				//	db.commit(); ////FOR WEB VERSION
+
 			} catch (IOException e) {
 				System.out.println("There is no output file or it is not accessible!");
-				e.printStackTrace();
-				System.exit(1);	
-
+				csvReader.close();
+				throw e;
 			} catch (CsvValidationException e) {			
 				e.printStackTrace();
 			}
