@@ -27,7 +27,7 @@ import pytesseract
 #12    Sparse text with OSD.
 #13    Raw line. Treat the image as a single text line, bypassing hacks that are Tesseract-specific.
 
-tesseractConfig = '--psm 4 --oem 1 -l eng'
+tesseractConfig = r'--psm 4 --oem 1 -l por' #outputbase digits (for digits only)
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 outputFile=r'C:/output.csv'
 file=r'G:/Porbiota/OCR_entomologia-20210908T161645Z-001/OCR_entomologia/177_1997/max_treatment_Page_3.jpg'
@@ -127,7 +127,6 @@ box = []
 for c in contours:
     x, y, w, h = cv2.boundingRect(c)
     if (w<1000 and h<500):
-        #image = cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
         image = cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
         box.append([x,y,w,h])
         
@@ -196,7 +195,7 @@ for i in range(len(finalboxes)):
         else:
             for k in range(len(finalboxes[i][j])):
                 y,x,w,h = finalboxes[i][j][k][0],finalboxes[i][j][k][1], finalboxes[i][j][k][2],finalboxes[i][j][k][3]
-                finalimg = bitnot[x:x+h, y:y+w]
+                finalimg = bitnot[x+1:x+h-1, y+1:y+w-1]
                 kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 1))
                 border = cv2.copyMakeBorder(finalimg,2,2,2,2,   cv2.BORDER_CONSTANT,value=[255,255])
                 resizing = cv2.resize(border, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
@@ -211,7 +210,7 @@ for i in range(len(finalboxes)):
                # out = pytesseract.image_to_string(erosion)
                # if(len(out)==0):
                 out = pytesseract.image_to_string(erosion, config=tesseractConfig)
-                inner = inner +" "+ out
+                inner = inner +" "+ out.strip(' \x0c\n')
             outer.append(inner)
 
 #Creating a dataframe of the generated OCR list
