@@ -48,7 +48,13 @@ Input columns:
 
 Input columns are copied to output adding the ISO datetime, date and time (with or without time offset) as last 3 columns.
 
-## github svn enable tocken
+## dupocup_ex.py
 creates event-occurrence-resourcerelationship from ocupprici and ocupsegund
 
-
+## OCR_Table.py
+Temporary OCR/table implementation that uses on tesseract dynamic library instead of executable
+- more info https://pypi.org/project/tesserocr/
+- implemented commandline settings for input and output files
+- uses LSTM pre-trained networks - gives sligthly betted results
+- will crop the individual images by one extra pixel to reduce sell frames artifacts
+- removes redundant EOL, CR and spaces from the cells
