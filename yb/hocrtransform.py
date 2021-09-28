@@ -9,6 +9,11 @@
 # Copyright (c) 2015-16, James R. Barlow
 #   Set text to transparent
 #
+# Copyright (c) 2021, Y.B./Porbiota
+#   Combine multiple HOCRs in single PDF
+#   Add image layer if JPG with same name exisis
+#   Copy metadata from first JPG to the PDF
+#
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -29,16 +34,32 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import argparse
-import os
+import os,sys
 import re
 from math import atan, cos, sin
 from pathlib import Path
-from typing import Any, NamedTuple, Optional, Tuple, Union
+from typing import Any, NamedTuple, Optional, Tuple
 from xml.etree import ElementTree
-
+from PIL import Image
+from PIL.ExifTags import TAGS
+import reportlab
 from reportlab.lib.colors import black, cyan, magenta, red
 from reportlab.lib.units import inch
 from reportlab.pdfgen.canvas import Canvas
+
+class StdoutWrapper:
+    """
+    Wrapper around stdout that ensures 'bytes' data is decoded
+    to 'latin1' (0x00 - 0xff) before writing out. This is necessary for
+    the invisible font to be injected as bytes but written out as a string.
+    """
+
+    def write(self, data, *args, **kwargs):
+        if bytes != str and isinstance(data, bytes):
+            data = data.decode('latin1')
+        sys.stdout.write(data)
+
+
 
 # According to Wikipedia these languages are supported in the ISO-8859-1 character
 # set, meaning reportlab can generate them and they are compatible with hocr,
@@ -132,37 +153,54 @@ class HocrTransform:
         {'ﬀ': 'ff', 'ﬃ': 'f‌f‌i', 'ﬄ': 'f‌f‌l', 'ﬁ': 'fi', 'ﬂ': 'fl'}
     )
 
-    def __init__(self, *, hocr_filename: Union[str, Path], dpi: float):
+    def __init__(self, *, hocr_files, dpi: float):
         self.dpi = dpi
-        self.hocr = ElementTree.parse(os.fspath(hocr_filename))
-
+        self.numfiles=len(hocr_files)
+        self.hocr_files=hocr_files
+        self.image_files=[os.path.splitext(n.name)[0]+'.jpg' if os.path.isfile(os.path.splitext(n.name)[0]+'.jpg') else None for n in hocr_files]
+        self.hocrs=[None]*self.numfiles
+        for i in range(self.numfiles):
+            print(self.hocr_files[i].name)
+            self.hocrs[i]=ElementTree.parse(self.hocr_files[i])
+        #self.hocrs = [ElementTree.parse(f) for f in hocr_files ]
+        self.metadata = False
+        for i in range(self.numfiles):
+            if self.metadata is False and self.image_files[i] is not None:
+                exifdata=Image.open(self.image_files[i]).getexif()
+                self.metadata={TAGS.get(tag_id, tag_id):exifdata[tag_id].decode(encoding='UTF-8',errors='replace') if isinstance(exifdata[tag_id],bytes) else exifdata[tag_id] for tag_id in exifdata}
+        #print(self.metadata)
         # if the hOCR file has a namespace, ElementTree requires its use to
         # find elements
-        matches = re.match(r'({.*})html', self.hocr.getroot().tag)
-        self.xmlns = ''
-        if matches:
-            self.xmlns = matches.group(1)
+        self.xmlnss=['']*self.numfiles
+        for i in range(self.numfiles):
+          matches = re.match(r'({.*})html', self.hocrs[i].getroot().tag)
+          if matches:
+            self.xmlnss[i] = matches.group(1)
 
         # get dimension in pt (not pixel!!!!) of the OCRed image
-        self.width, self.height = None, None
-        for div in self.hocr.findall(self._child_xpath('div', 'ocr_page')):
+        self.width, self.height = [None]*self.numfiles, [None]*self.numfiles
+        for i in range(self.numfiles):
+          #print("Filename %d %s jpeg %s"%(i,self.hocr_files[i].name,self.image_files[i]))
+          self.width[i]=None
+          self.height[i]=None
+          for div in self.hocrs[i].findall(self._child_xpath(i,'div', 'ocr_page')):
             coords = self.element_coordinates(div)
             pt_coords = self.pt_from_pixel(coords)
-            self.width = pt_coords.x2 - pt_coords.x1
-            self.height = pt_coords.y2 - pt_coords.y1
+            self.width[i] = pt_coords.x2 - pt_coords.x1
+            self.height[i] = pt_coords.y2 - pt_coords.y1
             # there shouldn't be more than one, and if there is, we don't want
             # it
             break
-        if self.width is None or self.height is None:
+          if self.width[i] is None or self.height[i] is None:
             raise HocrTransformError("hocr file is missing page dimensions")
 
-    def __str__(self):  # pragma: no cover
+    def __str__(self,idx):  # pragma: no cover
         """
         Return the textual content of the HTML body
         """
-        if self.hocr is None:
+        if self.hocrs[idx] is None:
             return ''
-        body = self.hocr.find(self._child_xpath('body'))
+        body = self.hocrs[idx].find(self._child_xpath(idx,'body'))
         if body:
             return self._get_element_text(body)
         else:
@@ -188,7 +226,9 @@ class HocrTransform:
         an element
         """
         out = Rect._make(0 for _ in range(4))
+        #print(element.attrib)
         if 'title' in element.attrib:
+            #print(element.attrib['title'])
             matches = cls.box_pattern.search(element.attrib['title'])
             if matches:
                 coords = matches.group(1).split()
@@ -212,8 +252,8 @@ class HocrTransform:
         """
         return Rect._make((c / self.dpi * inch) for c in pxl)
 
-    def _child_xpath(self, html_tag: str, html_class: Optional[str] = None) -> str:
-        xpath = f".//{self.xmlns}{html_tag}"
+    def _child_xpath(self, idx, html_tag: str, html_class: Optional[str] = None) -> str:
+        xpath = f".//{self.xmlnss[idx]}{html_tag}"
         if html_class:
             xpath += f"[@class='{html_class}']"
         return xpath
@@ -238,10 +278,9 @@ class HocrTransform:
     def to_pdf(
         self,
         *,
-        out_filename: Path,
-        image_filename: Optional[Path] = None,
+        out_filename: Optional[Path] = None,
         show_bounding_boxes: bool = False,
-        fontname: str = "Helvetica",
+        fontname,
         invisible_text: bool = False,
         interword_spaces: bool = False,
     ) -> None:
@@ -270,18 +309,29 @@ class HocrTransform:
         # create the PDF file
         # page size in points (1/72 in.)
         pdf = Canvas(
-            os.fspath(out_filename),
-            pagesize=(self.width, self.height),
+            os.fspath(out_filename) if out_filename is not None else StdoutWrapper(),
             pageCompression=1,
         )
-
+        pdf.setProducer("ReportLab PDF Library (%s)"%reportlab.__version__)
+        pdf.setCreator("hocrtransform mod @ porbiota")
+        if self.metadata is not False and 'DocumentName' in self.metadata:
+            pdf.setTitle(self.metadata['DocumentName'])
+        else:
+            pdf.setTitle('')
+        if self.metadata is not False and 'Artist' in self.metadata:
+            pdf.setAuthor(self.metadata['Artist'])
+        else:
+            pdf.setTitle('')
+        pdf.setSubject('')
         # draw bounding box for each paragraph
         # light blue for bounding box of paragraph
         pdf.setStrokeColor(cyan)
         # light blue for bounding box of paragraph
         pdf.setFillColor(cyan)
         pdf.setLineWidth(0)  # no line for bounding box
-        for elem in self.hocr.iterfind(self._child_xpath('p', 'ocr_par')):
+        for i in range(self.numfiles):
+          pdf.setPageSize((self.width[i], self.height[i]))
+          for elem in self.hocrs[i].iterfind(self._child_xpath(i,'p', 'ocr_par')):
             elemtxt = self._get_element_text(elem).rstrip()
             if len(elemtxt) == 0:
                 continue
@@ -292,16 +342,16 @@ class HocrTransform:
             # draw the bbox border
             if show_bounding_boxes:  # pragma: no cover
                 pdf.rect(
-                    pt.x1, self.height - pt.y2, pt.x2 - pt.x1, pt.y2 - pt.y1, fill=1
+                    pt.x1, self.height[i] - pt.y2, pt.x2 - pt.x1, pt.y2 - pt.y1, fill=1
                 )
 
-        found_lines = False
-        for line in (
+          found_lines = False
+          for line in (
             element
-            for element in self.hocr.iterfind(self._child_xpath('span'))
+            for element in self.hocrs[i].iterfind(self._child_xpath(i,'span'))
             if 'class' in element.attrib
             and element.attrib['class'] in {'ocr_header', 'ocr_line', 'ocr_textfloat'}
-        ):
+          ):
             found_lines = True
             self._do_line(
                 pdf,
@@ -311,11 +361,12 @@ class HocrTransform:
                 invisible_text,
                 interword_spaces,
                 show_bounding_boxes,
+                i
             )
 
-        if not found_lines:
+          if not found_lines:
             # Tesseract did not report any lines (just words)
-            root = self.hocr.find(self._child_xpath('div', 'ocr_page'))
+            root = self.hocrs[i].find(self._child_xpath(i,'div', 'ocr_page'))
             self._do_line(
                 pdf,
                 root,
@@ -324,15 +375,16 @@ class HocrTransform:
                 invisible_text,
                 interword_spaces,
                 show_bounding_boxes,
+                i
             )
-        # put the image on the page, scaled to fill the page
-        if image_filename is not None:
+          # put the image on the page, scaled to fill the page
+          if self.image_files[i] is not None:
             pdf.drawImage(
-                os.fspath(image_filename), 0, 0, width=self.width, height=self.height
+                os.fspath(self.image_files[i]), 0, 0, width=self.width[i], height=self.height[i]
             )
 
         # finish up the page and save it
-        pdf.showPage()
+          pdf.showPage()
         pdf.save()
 
     @classmethod
@@ -348,6 +400,7 @@ class HocrTransform:
         invisible_text: bool,
         interword_spaces: bool,
         show_bounding_boxes: bool,
+        idx:int,
     ):
         if line is None:
             return
@@ -374,7 +427,7 @@ class HocrTransform:
 
         # Intercept is normally negative, so this places it above the bottom
         # of the line box
-        baseline_y2 = self.height - (line_box.y2 + intercept)
+        baseline_y2 = self.height[idx] - (line_box.y2 + intercept)
 
         if show_bounding_boxes:  # pragma: no cover
             # draw the baseline in magenta, dashed
@@ -396,7 +449,7 @@ class HocrTransform:
         text.setTextTransform(cos_a, -sin_a, sin_a, cos_a, line_box.x1, baseline_y2)
         pdf.setFillColor(black)  # text in black
 
-        elements = line.findall(self._child_xpath('span', elemclass))
+        elements = line.findall(self._child_xpath(idx,'span', elemclass))
         for elem in elements:
             elemtxt = self._get_element_text(elem).strip()
             elemtxt = self.replace_unsupported_chars(elemtxt)
@@ -472,10 +525,11 @@ if __name__ == "__main__":
         help='Resolution of the image that was OCRed',
     )
     parser.add_argument(
-        '-i',
-        '--image',
-        default=None,
-        help='Path to the image to be placed above the text',
+        '-f',
+        '--fontname',
+        type=str,
+        default='Helvetica',
+        help='Font name to be used for text',
     )
     parser.add_argument(
         '--interword-spaces',
@@ -483,14 +537,21 @@ if __name__ == "__main__":
         default=False,
         help='Add spaces between words',
     )
-    parser.add_argument('hocrfile', help='Path to the hocr file to be parsed')
-    parser.add_argument('outputfile', help='Path to the PDF file to be generated')
+    parser.add_argument(
+        '-o',
+        '--outputfile',
+        type=str,
+        default=None,
+        help='Output filename',
+    )
+    parser.add_argument('hocrfiles', type=argparse.FileType('r'), nargs='+', help='Path to the hocr file to be parsed')
+    #parser.add_argument('outputfile', help='Path to the PDF file to be generated')
     args = parser.parse_args()
-
-    hocr = HocrTransform(hocr_filename=args.hocrfile, dpi=args.resolution)
+    
+    hocr = HocrTransform(hocr_files=args.hocrfiles, dpi=args.resolution)
     hocr.to_pdf(
         out_filename=args.outputfile,
-        image_filename=args.image,
+        fontname=args.fontname,
         show_bounding_boxes=args.boundingboxes,
         interword_spaces=args.interword_spaces,
     )

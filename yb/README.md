@@ -58,3 +58,11 @@ Temporary OCR/table implementation that uses on tesseract dynamic library instea
 - uses LSTM pre-trained networks - gives sligthly betted results
 - will crop the individual images by one extra pixel to reduce sell frames artifacts
 - removes redundant EOL, CR and spaces from the cells
+
+## hocrtransform.py
+Tool to convert list of .hocr and corresponding .jpg files to searchable .pdf
+- modified from ocrmypdf/hocrtransform
+- Combine multiple HOCRs in single PDF
+- Add image layer if JPG with same name exisis
+- copies some metadata from the first JPG to the output PDF
+- accepts option to choose another standard PDF font instead of 'Helvetica'
