@@ -154,10 +154,11 @@ class HocrTransform:
     )
 
     def __init__(self, *, hocr_files, dpi: float):
-        self.dpi = dpi
         self.numfiles=len(hocr_files)
+        self.currentpage=None
+        self.dpis=[dpi]*self.numfiles
         self.hocr_files=hocr_files
-        self.image_files=[os.path.splitext(n.name)[0]+'.jpg' if os.path.isfile(os.path.splitext(n.name)[0]+'.jpg') else None for n in hocr_files]
+        self.image_files=[None]*self.numfiles
         self.hocrs=[None]*self.numfiles
         for i in range(self.numfiles):
             print(self.hocr_files[i].name)
@@ -165,9 +166,19 @@ class HocrTransform:
         #self.hocrs = [ElementTree.parse(f) for f in hocr_files ]
         self.metadata = False
         for i in range(self.numfiles):
-            if self.metadata is False and self.image_files[i] is not None:
-                exifdata=Image.open(self.image_files[i]).getexif()
-                self.metadata={TAGS.get(tag_id, tag_id):exifdata[tag_id].decode(encoding='UTF-8',errors='replace') if isinstance(exifdata[tag_id],bytes) else exifdata[tag_id] for tag_id in exifdata}
+            filename=os.path.splitext(hocr_files[i].name)[0]+'.jpg'
+            if os.path.isfile(filename):
+                self.image_files[i]=filename
+                tempimage=Image.open(filename)
+                if 'dpi' in tempimage.info:
+                    self.dpis[i]=max(tempimage.info['dpi'])
+                if self.metadata is False:
+                    exifdata=tempimage.getexif()
+                    if len(exifdata)>0:
+                        self.metadata={TAGS.get(tag_id, tag_id):exifdata[tag_id].decode(encoding='UTF-8',errors='replace') if isinstance(exifdata[tag_id],bytes) else exifdata[tag_id] for tag_id in exifdata}
+                tempimage.close()
+                del tempimage
+            del filename
         #print(self.metadata)
         # if the hOCR file has a namespace, ElementTree requires its use to
         # find elements
@@ -180,10 +191,11 @@ class HocrTransform:
         # get dimension in pt (not pixel!!!!) of the OCRed image
         self.width, self.height = [None]*self.numfiles, [None]*self.numfiles
         for i in range(self.numfiles):
+          self.currentpage=i  
           #print("Filename %d %s jpeg %s"%(i,self.hocr_files[i].name,self.image_files[i]))
           self.width[i]=None
           self.height[i]=None
-          for div in self.hocrs[i].findall(self._child_xpath(i,'div', 'ocr_page')):
+          for div in self.hocrs[i].findall(self._child_xpath('div', 'ocr_page')):
             coords = self.element_coordinates(div)
             pt_coords = self.pt_from_pixel(coords)
             self.width[i] = pt_coords.x2 - pt_coords.x1
@@ -194,13 +206,13 @@ class HocrTransform:
           if self.width[i] is None or self.height[i] is None:
             raise HocrTransformError("hocr file is missing page dimensions")
 
-    def __str__(self,idx):  # pragma: no cover
+    def __str__(self):  # pragma: no cover
         """
         Return the textual content of the HTML body
         """
-        if self.hocrs[idx] is None:
+        if self.hocrs[self.currentpage] is None:
             return ''
-        body = self.hocrs[idx].find(self._child_xpath(idx,'body'))
+        body = self.hocrs[self.currentpage].find(self._child_xpath('body'))
         if body:
             return self._get_element_text(body)
         else:
@@ -250,10 +262,10 @@ class HocrTransform:
         """
         Returns the quantity in PDF units (pt) given quantity in pixels
         """
-        return Rect._make((c / self.dpi * inch) for c in pxl)
+        return Rect._make((c / self.dpis[self.currentpage] * inch) for c in pxl)
 
-    def _child_xpath(self, idx, html_tag: str, html_class: Optional[str] = None) -> str:
-        xpath = f".//{self.xmlnss[idx]}{html_tag}"
+    def _child_xpath(self, html_tag: str, html_class: Optional[str] = None) -> str:
+        xpath = f".//{self.xmlnss[self.currentpage]}{html_tag}"
         if html_class:
             xpath += f"[@class='{html_class}']"
         return xpath
@@ -330,8 +342,9 @@ class HocrTransform:
         pdf.setFillColor(cyan)
         pdf.setLineWidth(0)  # no line for bounding box
         for i in range(self.numfiles):
+          self.currentpage=i
           pdf.setPageSize((self.width[i], self.height[i]))
-          for elem in self.hocrs[i].iterfind(self._child_xpath(i,'p', 'ocr_par')):
+          for elem in self.hocrs[i].iterfind(self._child_xpath('p', 'ocr_par')):
             elemtxt = self._get_element_text(elem).rstrip()
             if len(elemtxt) == 0:
                 continue
@@ -348,7 +361,7 @@ class HocrTransform:
           found_lines = False
           for line in (
             element
-            for element in self.hocrs[i].iterfind(self._child_xpath(i,'span'))
+            for element in self.hocrs[i].iterfind(self._child_xpath('span'))
             if 'class' in element.attrib
             and element.attrib['class'] in {'ocr_header', 'ocr_line', 'ocr_textfloat'}
           ):
@@ -361,12 +374,11 @@ class HocrTransform:
                 invisible_text,
                 interword_spaces,
                 show_bounding_boxes,
-                i
             )
 
           if not found_lines:
             # Tesseract did not report any lines (just words)
-            root = self.hocrs[i].find(self._child_xpath(i,'div', 'ocr_page'))
+            root = self.hocrs[i].find(self._child_xpath('div', 'ocr_page'))
             self._do_line(
                 pdf,
                 root,
@@ -375,7 +387,6 @@ class HocrTransform:
                 invisible_text,
                 interword_spaces,
                 show_bounding_boxes,
-                i
             )
           # put the image on the page, scaled to fill the page
           if self.image_files[i] is not None:
@@ -400,7 +411,6 @@ class HocrTransform:
         invisible_text: bool,
         interword_spaces: bool,
         show_bounding_boxes: bool,
-        idx:int,
     ):
         if line is None:
             return
@@ -415,7 +425,7 @@ class HocrTransform:
         cos_a, sin_a = cos(angle), sin(angle)
 
         text = pdf.beginText()
-        intercept = pxl_intercept / self.dpi * inch
+        intercept = pxl_intercept / self.dpis[self.currentpage] * inch
 
         # Don't allow the font to break out of the bounding box. Division by
         # cos_a accounts for extra clearance between the glyph's vertical axis
@@ -427,7 +437,7 @@ class HocrTransform:
 
         # Intercept is normally negative, so this places it above the bottom
         # of the line box
-        baseline_y2 = self.height[idx] - (line_box.y2 + intercept)
+        baseline_y2 = self.height[self.currentpage] - (line_box.y2 + intercept)
 
         if show_bounding_boxes:  # pragma: no cover
             # draw the baseline in magenta, dashed
@@ -449,7 +459,7 @@ class HocrTransform:
         text.setTextTransform(cos_a, -sin_a, sin_a, cos_a, line_box.x1, baseline_y2)
         pdf.setFillColor(black)  # text in black
 
-        elements = line.findall(self._child_xpath(idx,'span', elemclass))
+        elements = line.findall(self._child_xpath('span', elemclass))
         for elem in elements:
             elemtxt = self._get_element_text(elem).strip()
             elemtxt = self.replace_unsupported_chars(elemtxt)
