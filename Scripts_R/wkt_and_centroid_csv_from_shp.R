@@ -27,7 +27,7 @@ linesLimit = 20000
 
 #Set the path to shapefile
 path = "FullPathToFile ex: C:/teste.shp" 
-encoding = 'CP1252' #It is probably the correct one given the datasets until now, might change though.
+encoding = 'CP1252' #It is probably the correct one given the datasets until now, might change though, the other likely candidate is 'UTF-8'.
  
 ###Set output FOLDER
 output_path = "FullPathToOutputFolder ex: C:/teste/"
