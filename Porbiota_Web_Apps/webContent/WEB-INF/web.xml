@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" id="WebApp_ID" version="4.0">
+  <display-name>Porbiota_Web_Apps</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+    <welcome-file>homepage.html</welcome-file>
+  </welcome-file-list>
+  <servlet-mapping>
+    <servlet-name>Metadata Extractor</servlet-name>
+    <url-pattern>/metadataExtractor</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Location Extractor</servlet-name>
+    <url-pattern>/locationExtractor</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Download Results</servlet-name>
+    <url-pattern>/downloadResults</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Species Extractor</servlet-name>
+    <url-pattern>/speciesExtractor</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>Startup</servlet-name>
+    <servlet-class>webPages.Startup</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Table Joiner</servlet-name>
+    <url-pattern>/tableJoiner</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>MGRS to Latitude Longitude</servlet-name>
+    <url-pattern>/MGRStoLatLon</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Initial Column Adder</servlet-name>
+    <url-pattern>/columnAdder</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Time Zone Extractor</servlet-name>
+    <url-pattern>/timeZoneExtractor</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>OCR</servlet-name>
+    <url-pattern>/OCR</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>OCR Table</servlet-name>
+    <url-pattern>/OCRTable</url-pattern>
+  </servlet-mapping>
+   <servlet-mapping>
+    <servlet-name>Txt Tagger</servlet-name>
+    <url-pattern>/txtTagger</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Tag To Csv</servlet-name>
+    <url-pattern>/tagToCsv</url-pattern>
+  </servlet-mapping>
+</web-app>
