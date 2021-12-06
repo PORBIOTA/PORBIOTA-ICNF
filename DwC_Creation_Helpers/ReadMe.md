@@ -7,6 +7,7 @@ All the provided programs require Java to run, with the exception of the R scrip
 
 Following is a short explanation of the functions offered by each of the programs:
 
+****
 **shp_to_csv_converter.r**
 
 R script to convert a .shp file into a .csv with DwC terms while calculating the centroids (and precision) of the shapes in both the original CRS and in WGS84.
