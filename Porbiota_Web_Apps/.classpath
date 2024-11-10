@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="webApps">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/Tome/eclipse-workspace/Porbiota Web Apps/webContent/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/commons-beanutils-1.9.4.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/commons-collections4-4.4.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/commons-compress-1.20.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/commons-lang3-3.12.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/commons-logging-1.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/commons-text-1.9.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/json-simple-1.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/opencsv-5.5.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/javax.servlet-api-3.0.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.core.runtimeTarget/J2EE Runtime Library">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.web"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/jakarta.servlet.jsp.jstl-1.2.6.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/jakarta.servlet.jsp.jstl-api-1.2.7.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/mapdb/mapdb-3.0.8.jar" sourcepath="G:/Porbiota/CSV Editor Java/Libraries/mapdb/mapdb-3.0.8-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/G:/Porbiota/CSV%20Editor%20Java/Libraries/mapdb/mapdb-3.0.8-javadoc.jar!/"/>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/kotlin-stdlib-1.2.71.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/kotlin-stdlib-common-1.2.71.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/annotations-13.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/checker-qual-3.8.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/eclipse-collections-11.0.0.M3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/eclipse-collections-api-11.0.0.M3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/eclipse-collections-forkjoin-11.0.0.M3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/elsa-3.0.0-M5.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/error_prone_annotations-2.5.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/failureaccess-1.0.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/guava-30.1.1-jre.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/j2objc-annotations-1.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/jsr305-3.0.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/IPT/apache-tomcat-9.0.46-windows-x64/apache-tomcat-9.0.46/lib/lz4-1.3.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/commons-io-2.11.0-bin/commons-io-2.11.0/commons-io-2.11.0.jar" sourcepath="G:/Porbiota/CSV Editor Java/Libraries/commons-io-2.11.0-bin/commons-io-2.11.0/commons-io-2.11.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/G:/Porbiota/CSV%20Editor%20Java/Libraries/commons-io-2.11.0-bin/commons-io-2.11.0/commons-io-2.11.0-javadoc.jar!/"/>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/GeoCoordinateConversion.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Proj4j1.1.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/timeshape-2020d.11.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/fontbox-2.0.24.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/ghost4j-1.0.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/itext-2.1.7.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/jai-imageio-core-1.4.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/jbig2-imageio-3.0.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/jboss-logging-3.1.4.GA.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/jboss-vfs-3.2.15.Final.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/jna-5.8.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/lept4j-1.13.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/log4j-1.2.17.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/pdfbox-2.0.24.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/pdfbox-debugger-2.0.24.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/pdfbox-tools-2.0.24.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/tess4j-4.5.5.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/Tess4j/xmlgraphics-commons-1.4.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/slf4j-api-1.7.9.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/slf4j-jdk14-1.7.32.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/zstd-jni-1.4.4-9.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/lucene-8.9.0/queryparser/lucene-queryparser-8.9.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/lucene-8.9.0/core/lucene-core-8.9.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/lucene-8.9.0/analysis/common/lucene-analyzers-common-8.9.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/jackson-core-2.10.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="G:/Porbiota/CSV Editor Java/Libraries/jar_files/protobuf-java-3.10.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="webApps"/>
+</classpath>
